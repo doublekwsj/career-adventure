@@ -230,27 +230,30 @@ body {
 /* Mobile Controls */
 #mobile-controls {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 140px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
+    padding: 10px 16px;
     z-index: 50;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
 }
 
 #mobile-controls.hidden { display: none; }
 
 #mobile-left, #mobile-right {
     display: flex;
-    gap: 10px;
-    align-items: flex-end;
+    gap: 8px;
+    align-items: center;
 }
 
 .ctrl-btn {
     border-radius: 50%;
-    border: 3px solid rgba(255,255,255,0.6);
-    background: rgba(255,255,255,0.15);
+    border: 3px solid rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.2);
     color: #fff;
     font-family: 'Press Start 2P', monospace;
     cursor: pointer;
@@ -261,83 +264,99 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.1s;
+    font-size: 20px;
 }
 
 .arrow-btn {
-    width: 70px;
-    height: 70px;
-    font-size: 22px;
-    font-weight: bold;
+    width: 72px;
+    height: 72px;
+    font-size: 24px;
 }
 
 .jump-btn {
-    width: 90px;
-    height: 90px;
-    font-size: 12px;
-    border-color: rgba(240,208,0,0.7);
-    background: rgba(240,208,0,0.15);
+    width: 88px;
+    height: 88px;
+    font-size: 11px;
+    border-color: rgba(240,208,0,0.8);
+    background: rgba(240,208,0,0.25);
+    color: #f0d000;
+}
+
+.dash-btn {
+    width: 64px;
+    height: 64px;
+    font-size: 9px;
+    border-color: rgba(79,195,247,0.8);
+    background: rgba(79,195,247,0.2);
+    color: #4fc3f7;
 }
 
 .action-btn {
-    width: 60px;
-    height: 60px;
-    font-size: 9px;
-    border-color: rgba(79,195,247,0.6);
-    background: rgba(79,195,247,0.1);
+    width: 56px;
+    height: 56px;
+    font-size: 18px;
+    border-color: rgba(139,195,74,0.7);
+    background: rgba(139,195,74,0.15);
 }
 
-.ctrl-btn:active, .ctrl-btn.pressed {
-    background: rgba(255,255,255,0.4);
-    transform: scale(0.9);
+.ctrl-btn.pressed {
+    background: rgba(255,255,255,0.5);
+    transform: scale(0.88);
+    border-color: #fff;
 }
 
-.jump-btn:active, .jump-btn.pressed {
-    background: rgba(240,208,0,0.4);
+.jump-btn.pressed {
+    background: rgba(240,208,0,0.6);
 }
 
-#mobile-tap-zone {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 45;
+.dash-btn.pressed {
+    background: rgba(79,195,247,0.5);
 }
-
-#mobile-tap-zone.hidden { display: none; }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-    #hud {
-        padding: 6px 10px;
-        font-size: 8px;
+    #game-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
     }
-    #hud-year { font-size: 11px; }
-    #hud-score { font-size: 9px; }
-    #hud-coins { font-size: 9px; }
-    #hud-progress-wrap { width: 80px; }
-    #hud-zone-title { font-size: 6px; }
+
+    #hud {
+        padding: 4px 8px;
+        font-size: 7px;
+    }
+    #hud-year { font-size: 10px; }
+    #hud-score { font-size: 8px; }
+    #hud-coins { font-size: 8px; }
+    #hud-progress-wrap { width: 60px; }
+    #hud-zone-title { font-size: 5px; }
 
     #popup {
-        max-width: 90vw;
-        padding: 16px 20px;
-        font-size: 9px;
-        max-height: 60vh;
+        max-width: 92vw;
+        padding: 14px 16px;
+        font-size: 8px;
+        max-height: 55vh;
+        top: 30%;
     }
-    #popup-content h3 { font-size: 11px; }
+    #popup-content h3 { font-size: 10px; }
 
     #cutscene-content {
-        padding: 20px;
+        padding: 16px;
     }
-    #cutscene-content h2 { font-size: 14px; }
-    #cutscene-content p { font-size: 8px; }
-    #cutscene-content .zone-year { font-size: 18px; }
+    #cutscene-content h2 { font-size: 12px; }
+    #cutscene-content p { font-size: 7px; line-height: 1.8; }
+    #cutscene-content .zone-year { font-size: 16px; }
 }
 
-@media (max-height: 500px) {
-    .arrow-btn { width: 56px; height: 56px; font-size: 18px; }
-    .jump-btn { width: 72px; height: 72px; font-size: 10px; }
-    .action-btn { width: 48px; height: 48px; font-size: 8px; }
-    #mobile-controls { bottom: 5px; }
+@media (max-height: 600px) {
+    #mobile-controls { height: 110px; padding: 6px 12px; }
+    .arrow-btn { width: 60px; height: 60px; font-size: 20px; }
+    .jump-btn { width: 72px; height: 72px; font-size: 9px; }
+    .dash-btn { width: 52px; height: 52px; font-size: 8px; }
+    .action-btn { width: 46px; height: 46px; font-size: 14px; }
+}
+
+@media (orientation: portrait) {
+    #mobile-controls { height: 120px; }
 }

@@ -44,6 +44,18 @@ class Player {
         this.maxHp = 3;
         this.dead = false;
         this.dustTimer = 0;
+
+        // Double jump
+        this.jumpsLeft = 2;
+        this.maxJumps = 2;
+
+        // Dash
+        this.dashing = false;
+        this.dashTimer = 0;
+        this.dashCooldown = 0;
+        this.dashSpeed = 14;
+        this.dashDuration = 12;
+        this.dashCooldownMax = 40;
     }
 
     setLevel(level) {
@@ -90,11 +102,28 @@ class Player {
         }
         if (this.jumpBufferTime > 0) this.jumpBufferTime--;
 
-        // Jump
-        if (this.jumpBufferTime > 0 && this.coyoteTime > 0) {
-            this.vy = this.jumpForce;
-            this.onGround = false;
-            this.coyoteTime = 0;
+        // Reset jumps on ground
+        if (this.onGround) {
+            this.jumpsLeft = this.maxJumps;
+        }
+
+        // Jump (with double jump)
+        if (this.jumpBufferTime > 0 && (this.coyoteTime > 0 || this.jumpsLeft > 0)) {
+            if (this.coyoteTime > 0) {
+                // Normal first jump
+                this.vy = this.jumpForce;
+                this.onGround = false;
+                this.coyoteTime = 0;
+                this.jumpsLeft = this.maxJumps - 1;
+            } else if (this.jumpsLeft > 0) {
+                // Double jump (air jump)
+                this.vy = this.jumpForce * 0.85;
+                this.jumpsLeft--;
+                Particles.emit(this.x + this.w / 2, this.y + this.h, {
+                    count: 6, colors: ['#fff', '#4fc3f7'], spread: 3,
+                    vy: 1, life: 15, size: 3, type: 'circle', gravity: 0
+                });
+            }
             this.jumpBufferTime = 0;
             this.jumpHoldTime = this.maxJumpHold;
             Audio.play('jump');
@@ -108,8 +137,37 @@ class Player {
             this.jumpHoldTime = 0;
         }
 
+        // Dash
+        if (this.dashCooldown > 0) this.dashCooldown--;
+        if ((Input.wasPressed('ShiftLeft') || Input.wasPressed('ShiftRight') || Input.wasPressed('KeyX')) && this.dashCooldown <= 0 && !this.dashing) {
+            this.dashing = true;
+            this.dashTimer = this.dashDuration;
+            this.dashCooldown = this.dashCooldownMax;
+            this.vy = 0; // freeze vertical during dash
+            Audio.play('powerup');
+            Particles.emit(this.x + this.w / 2, this.y + this.h / 2, {
+                count: 8, colors: ['#4fc3f7', '#81d4fa', '#fff'], spread: 2,
+                vx: -this.facing * 3, vy: 0, life: 15, size: 4, type: 'circle', gravity: 0
+            });
+        }
+        if (this.dashing) {
+            this.vx = this.facing * this.dashSpeed;
+            this.dashTimer--;
+            // Dash trail particles
+            Particles.emit(this.x + this.w / 2, this.y + this.h / 2, {
+                count: 1, colors: ['#4fc3f7'], spread: 1,
+                vx: -this.facing * 2, vy: 0, life: 10, size: 3, type: 'circle', gravity: 0
+            });
+            if (this.dashTimer <= 0) {
+                this.dashing = false;
+                this.vx = this.facing * this.maxSpeed; // smooth exit
+            }
+        }
+
         // State determination
-        if (!this.onGround) {
+        if (this.dashing) {
+            this.state = 'power';
+        } else if (!this.onGround) {
             this.state = this.vy < 0 ? 'jump' : 'fall';
         } else if (Math.abs(this.vx) > 0.5) {
             this.state = 'run';
@@ -117,7 +175,7 @@ class Player {
             this.state = 'idle';
         }
 
-        if (this.powered) this.state = 'power';
+        if (this.powered && !this.dashing) this.state = 'power';
 
         // Run animation
         if (this.state === 'run') {
@@ -126,7 +184,6 @@ class Player {
                 this.animTimer = 0;
                 this.animFrame = (this.animFrame + 1) % 2;
             }
-            // Dust particles when running
             this.dustTimer++;
             if (this.dustTimer > 4) {
                 this.dustTimer = 0;

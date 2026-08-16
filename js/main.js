@@ -37,31 +37,22 @@ const Game = {
         window.addEventListener('keydown', enableAudio);
         window.addEventListener('touchstart', enableAudio);
 
-        // Popup tap to close (for mobile)
-        document.getElementById('popup').addEventListener('touchstart', (e) => {
-            // Don't close if tapping a link
-            if (e.target.tagName === 'A') return;
-            if (this.popupVisible) {
-                this.justPressed_space = true;
-            }
-        });
-
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
     },
 
     resize() {
-        const isMobile = window.innerWidth <= 768;
-        // On mobile, use smaller internal resolution for performance
+        const isMobile = Input.isMobile;
         const maxW = isMobile ? 640 : 960;
         const maxH = isMobile ? 360 : 540;
         const ratio = maxW / maxH;
         let w = window.innerWidth;
         let h = window.innerHeight;
 
-        // On mobile, leave space for controls at bottom
         if (isMobile) {
-            h = h * 0.65; // top 65% for game, bottom 35% for controls
+            // Reserve bottom space for controls
+            const controlsH = 140;
+            h = h - controlsH;
         }
 
         if (w / h > ratio) w = h * ratio;
@@ -69,8 +60,8 @@ const Game = {
 
         this.canvas.width = maxW;
         this.canvas.height = maxH;
-        this.canvas.style.width = Math.min(w, window.innerWidth) + 'px';
-        this.canvas.style.height = Math.min(h, window.innerHeight) + 'px';
+        this.canvas.style.width = w + 'px';
+        this.canvas.style.height = h + 'px';
 
         if (this.camera) {
             this.camera.resize(this.canvas.width, this.canvas.height);
@@ -132,13 +123,11 @@ const Game = {
         // Popup dismiss
         if (this.popupVisible) {
             this.popupTimer++;
-            if (Input.wasPressed('Space') || Input.wasPressed('Enter') || this.justPressed_space || this.popupTimer > 180) {
-                this.justPressed_space = false;
+            if (Input.wasPressed('Space') || Input.wasPressed('Enter') || this.popupTimer > 180) {
                 this.hidePopup();
             }
             return; // pause game while popup shown
         }
-        this.justPressed_space = false;
 
         // Player update
         this.player.update();
@@ -203,8 +192,13 @@ const Game = {
             if (!enemy.alive) continue;
             if (!Physics.rectCollision(this.player, enemy)) continue;
 
+            // Dash kills enemies
+            if (this.player.dashing) {
+                enemy.stomp();
+                this.player.addScore(150);
+            }
             // Stomp from above
-            if (this.player.vy > 0 && this.player.y + this.player.h - 10 < enemy.y + enemy.h / 2) {
+            else if (this.player.vy > 0 && this.player.y + this.player.h - 10 < enemy.y + enemy.h / 2) {
                 enemy.stomp();
                 this.player.vy = -8;
                 this.player.addScore(100);
@@ -223,7 +217,12 @@ const Game = {
             if (!boss.alive) continue;
             if (!Physics.rectCollision(this.player, boss)) continue;
 
-            if (this.player.vy > 0 && this.player.y + this.player.h - 10 < boss.y + boss.h * 0.4) {
+            if (this.player.dashing) {
+                const defeated = boss.hit();
+                this.player.addScore(defeated ? 1000 : 300);
+                this.player.dashing = false;
+                this.player.vx = -this.player.facing * 5; // bounce back
+            } else if (this.player.vy > 0 && this.player.y + this.player.h - 10 < boss.y + boss.h * 0.4) {
                 const defeated = boss.hit();
                 this.player.vy = -10;
                 this.player.addScore(defeated ? 1000 : 200);
@@ -453,14 +452,25 @@ const Game = {
 
         // Stats preview
         ctx.fillStyle = '#888';
-        ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText(`${this.totalAchievements} Achievements | 7 Zones | 10+ Years`, w / 2, h * 0.87);
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillText(`${this.totalAchievements} Achievements | 7 Zones | 10+ Years`, w / 2, h * 0.84);
+
+        // Controls hint
+        if (Input.isMobile) {
+            ctx.fillStyle = '#666';
+            ctx.font = '6px "Press Start 2P", monospace';
+            ctx.fillText('DOUBLE JUMP + DASH available!', w / 2, h * 0.89);
+        } else {
+            ctx.fillStyle = '#666';
+            ctx.font = '7px "Press Start 2P", monospace';
+            ctx.fillText('Arrows/WASD: Move | Space: Jump | X/Shift: Dash', w / 2, h * 0.89);
+        }
 
         // Start prompt
         if (Math.sin(t * 0.08) > -0.3) {
             ctx.fillStyle = '#fff';
             ctx.font = '11px "Press Start 2P", monospace';
-            ctx.fillText(Input.isMobile ? 'TAP TO START' : 'PRESS ANY KEY TO START', w / 2, h * 0.92);
+            ctx.fillText(Input.isMobile ? 'TAP SCREEN TO START' : 'PRESS ANY KEY TO START', w / 2, h * 0.95);
         }
     },
 
