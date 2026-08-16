@@ -6,7 +6,7 @@ const CAREER_DATA = {
         email: "wonkyunkim.sj@gmail.com",
         phone: "+82-10-2231-9021",
         linkedin: "https://www.linkedin.com/in/wonkyun-kim-50084b152/",
-        profile: "삼성전자 10년+ 경력의 Senior Data Scientist. 두 차례 창업을 대표로 이끌며 다양한 팀을 리딩. IEEE Access 논문 게재(149회 인용, SOTA 달성). 추천 시스템, 광고 타겟팅 AI, MLOps 프레임워크 등 대규모 프로덕션 ML 시스템의 설계·상품화·A/B 테스트·성과 측정까지 ML lifecycle 전반을 주도. 고객 세분화 모델로 일일 100만 건 추론 처리, AI Framework 구축으로 모델 상품화 기간을 3개월에서 1주일 미만으로 단축.",
+        profile: "삼성전자에서 10년 이상 정형 데이터 기반 ML 모델 개발 및 프로덕션 적용 경력을 보유한 Senior Data Scientist. 두 차례 창업을 대표로 이끌며 다양한 팀을 리딩. IEEE Access 논문 게재(149회 인용, SOTA 달성), 추천시스템 Ranking 모델 연구로 OCEAN4Rec 논문 게재(arXiv). 고객 세분화 모델로 일일 100만 건 추론 처리, AI Framework 구축으로 모델 상품화 기간을 3개월→1주일 미만으로 단축. LLM·AI Agent 기반 제품 개발 및 운영 경험도 보유.",
         education: [
             { school: "서울대학교", major: "지능정보융합학부 석사", year: "2023~2025", detail: "Multimodal LLM 연구 | 랩내 창업 (REFINED)" },
             { school: "아주대학교", major: "미디어학부 학사", year: "2008~2014", detail: "" }
@@ -35,114 +35,108 @@ const CAREER_DATA = {
     zones: [
         {
             id: 1,
-            years: "2015~2018",
+            years: "2014~2017",
             theme: "grassland",
-            title: "Data Platform Era",
-            subtitle: "Samsung VD - TV Platform Engineer",
-            description: "Smart TV의 핵심 데이터 인프라를 구축하고\nTV 생태계를 확장하는 다양한 서비스를 개발.\nSpark 기반 대용량 처리부터 GDPR 대응까지.",
+            title: "Software Engineer",
+            subtitle: "Samsung VD - Smart TV & Mobile App",
+            description: "Samsung Frame TV, Eden Mobile, One App 등 개발.\nSpark 기반 KPI 서버, GDPR 대응.\nSmartView SDK/DIAL Service 상품화.",
             bgColor1: "#87CEEB",
             bgColor2: "#4a8c2a",
             groundColor: "#5a3a1a",
             achievements: [
-                { text: "KPI 데이터 수집 서버: Spark 기반 대용량 데이터 수집·처리 서버 개발. VD사업부 전체 TV KPI 데이터 파이프라인 관리", type: "block", score: 200 },
-                { text: "GDPR 대응: EU GDPR 규정에 맞는 개인정보 처리·삭제 파이프라인 개발 및 상품화 완료", type: "block", score: 200 },
-                { text: "EPG 어플리케이션: TV 전자 프로그램 가이드 앱 개발 및 상품화 → TV 시청 경험 혁신", type: "coin", score: 150 },
-                { text: "SmartView SDK: TV-모바일 연동 SDK 개발 → VD사업부 Convergence 기능 강화 (Smartthings 전신)", type: "coin", score: 150 },
-                { text: "DIAL Service: YouTube/Netflix 캐스팅 서비스 개발 및 유지보수 → 주요 OTT 앱 사용성 강화", type: "block", score: 200 },
-                { text: "Serverless 품질 데이터 수집 서버: AWS Lambda 기반 비용 최적화된 서버 개발 및 안정적 운영", type: "coin", score: 150 },
-                { text: "즉시 시상 2회 + 사업부 주관 대회 2회 수상! (SW Excellent Programmer 포함)", type: "trophy", score: 500 }
+                { text: "Samsung Frame TV 앱, Samsung Eden Mobile, Samsung One App 개발 (Android, Node.js, C++, Tizen, RESTful API)", type: "block", score: 200 },
+                { text: "KPI 데이터 수집 서버: Spark 기반 대용량 데이터 수집·처리 서버 개발 및 안정적 운영", type: "block", score: 200 },
+                { text: "GDPR 대응: EU 규정에 맞는 개인정보 처리·삭제 파이프라인 개발 및 상품화", type: "coin", score: 150 },
+                { text: "SmartView SDK / DIAL Service: TV-모바일 연동 SDK, YouTube/Netflix 캐스팅 서비스 개발 및 상품화", type: "block", score: 200 },
+                { text: "즉시 시상 2회 + 사업부 주관 대회 2회 수상 (SW Excellent Programmer)", type: "trophy", score: 500 }
             ],
             boss: null,
             enemy: "bug",
-            npcDialog: "이 시절은 TV 데이터 세상의 기반을 다진 시기야.\nSpark로 빅데이터를 처리하고, GDPR까지...\n모든 것의 시작이었지!"
+            npcDialog: "서비스 개발부터 빅데이터 인프라까지,\n삼성 Smart TV의 기반을 만든 시기야.\nSpark, GDPR, SDK... 모든 것의 시작!"
         },
         {
             id: 2,
-            years: "2019",
+            years: "2017~2018",
             theme: "lab",
-            title: "C-Lab Innovation",
-            subtitle: "Samsung C-Lab - Healthcare Startup",
-            description: "600만원짜리 보청기를 대체하는 혁신적인\n스마트폰 보청 앱을 개발.\n삼성서울병원 임상시험 → CES 2020 전시\n→ 무선사업부 기술 이관 완료!",
+            title: "Big Data & Ad Platform",
+            subtitle: "Samsung VD - Data Scientist",
+            description: "Smart TV 광고 플랫폼 초기 빅데이터 모델 개발.\nACR Feature Engineering으로 비용·성능 20%+ 효율화.\nCross-device 광고 모델 → Lincoln 브랜드 캠페인 적용.",
             bgColor1: "#1a1a3a",
             bgColor2: "#2a2a5a",
             groundColor: "#3a3a5a",
             achievements: [
-                { text: "600만원 보청기를 대체하는 스마트폰 기반 보청 어플리케이션 개발! 누구나 접근 가능한 청각 보조 기술 실현", type: "block", score: 300 },
-                { text: "삼성서울병원 협력: 실제 난청 환자 대상 임상시험 진행 → 의학적 효과 검증 완료", type: "block", score: 250 },
-                { text: "CES 2020 전시! 세계 최대 IT 전시회에서 혁신 기술로 주목받음", type: "trophy", score: 500 },
-                { text: "삼성전자 무선사업부(MX) 기술 이관 완료 → 실제 제품화 단계 진입!", type: "trophy", score: 500 }
+                { text: "Smart TV 광고 플랫폼 초기 빅데이터 모델: 가구 단위 Demographic 모델, Spark/Python 활용 빅데이터 수집·분석·ML 모델 개발", type: "block", score: 250 },
+                { text: "ACR Feature Engineering: TV의 ACR(Automatic Content Recognition) 데이터 분석 → 사용자 시청 패턴 피처 설계, 비용 및 성능 20% 이상 효율화!", type: "block", score: 300 },
+                { text: "크로스디바이스 광고 모델: User Behavior 데이터로 TV-모바일 간 사용자 매칭 및 타겟팅 모델 개발 → Lincoln 브랜드 캠페인 적용!", type: "trophy", score: 400 }
             ],
-            boss: { name: "CES STAGE", type: "showcase" },
+            boss: null,
             enemy: "glitch",
-            npcDialog: "보청기 하나에 600만원이라니...\n기술로 누구나 들을 수 있는 세상을 만들자!\nCES까지 가서 증명했어."
+            npcDialog: "데이터 엔지니어에서 데이터 사이언티스트로.\nACR 데이터와 ML을 결합해\n광고 타겟팅의 첫 걸음을 뗀 시기야."
         },
         {
             id: 3,
-            years: "2020",
+            years: "2018~2019",
             theme: "city",
-            title: "Ad-Tech & ML",
-            subtitle: "Samsung Ads - ML Engineer",
-            description: "ACR(Automatic Content Recognition) 데이터와\nML을 결합한 광고 타겟팅 기술 개발.\nLincoln 브랜드 캠페인 성공 운영.\n외부 AI 대회 수상까지!",
+            title: "C-Lab Innovation",
+            subtitle: "Samsung C-Lab - Creative Team Lead",
+            description: "600만원짜리 보청기를 대체하는\n스마트폰 보청 앱 프로젝트를 리딩!\n삼성서울병원 임상시험 성공\n→ CES 2019 출품 → 무선사업부 기술 이관.",
             bgColor1: "#2a1a3a",
             bgColor2: "#4a2a5a",
             groundColor: "#2a2a3a",
             achievements: [
-                { text: "ACR Feature Engineering: TV의 자동 콘텐츠 인식 데이터를 분석 → 사용자 시청 패턴 피처 설계, 자동화 파이프라인으로 비용·성능 20%+ 효율화!", type: "block", score: 250 },
-                { text: "크로스디바이스 광고 모델: User Behavior 데이터로 TV-모바일 간 사용자 매칭 기술 개발 → Cross-device Targeting 실현", type: "block", score: 250 },
-                { text: "Lincoln 브랜드 캠페인: 크로스디바이스 광고 타겟팅 모델을 Lincoln 자동차 캠페인에 적용 → 성공적 운영!", type: "trophy", score: 400 },
-                { text: "Context-aware Demographic 모델: 미국 시간대(daypart)와 시청 컨텍스트 활용 → 데모그래픽 추론 성능 10% Lift 달성", type: "block", score: 250 },
-                { text: "AI 경진대회 최우수상 (GIST 2020): 전력 사용량 예측 Deep Learning 모델 개발 및 비즈니스 모델 평가", type: "trophy", score: 400 },
-                { text: "HAICon 보안위협 탐지 AI 장려상 (한국정보보호학회): GRU 기반 Ensemble 모델 — overfitting trade-off 활용", type: "coin", score: 300 }
+                { text: "스마트폰 기반 보청기 앱 개발 프로젝트 리딩: 600만원 보청기를 AI 기술로 대체! 신호처리 및 AI 적용으로 시중 보청기 성능 상회", type: "block", score: 350 },
+                { text: "삼성서울병원 임상시험: 실제 난청 환자 대상 임상시험 진행 → 의학적 효과 검증 완료", type: "block", score: 300 },
+                { text: "CES 2019 출품! 세계 최대 IT 전시회에서 혁신 기술로 주목", type: "trophy", score: 500 },
+                { text: "삼성전자 무선사업부(MX) 기술 이관 완료 → 실제 제품화 단계 진입!", type: "trophy", score: 500 }
             ],
-            boss: null,
+            boss: { name: "CES STAGE", type: "showcase" },
             enemy: "spam",
-            npcDialog: "광고 타겟팅의 핵심은 '적시에 적소에'.\nACR 데이터로 TV가 뭘 보여주는지 알고,\n그걸 ML로 맞춤 광고에 연결하는 거지."
+            npcDialog: "보청기 하나에 600만원이라니...\n기술로 누구나 들을 수 있는 세상을 만들자!\nCES까지 가서 증명했어."
         },
         {
             id: 4,
-            years: "2021",
+            years: "2019~2021",
             theme: "factory",
-            title: "AI Framework & MLOps",
-            subtitle: "Samsung Ads - AI Platform Lead",
-            description: "ML 모델 상품화를 혁신적으로 자동화.\n3개월 → 1주일, 10명 → 2명.\n일일 100만 건 추론 시스템 구축.\n미국/한국 통합 MLOps 플랫폼 완성.",
+            title: "Ad Targeting Model",
+            subtitle: "Samsung Ads - Data Scientist",
+            description: "Demographic 스코어링 모델 개발.\nNielsen 패널 Ground Truth 활용\n→ 일일 100만 건 추론, 전체 광고의 25%\nLookAlike 모델 50%+ 성능 향상.",
             bgColor1: "#1a1a2a",
             bgColor2: "#3a2a1a",
             groundColor: "#4a4a4a",
             achievements: [
-                { text: "AI Framework 설계·개발: 광고 AI 모델의 학습·평가·서빙 자동화 통합 프레임워크 → 상품화 3개월 → 1주일 미만!!", type: "trophy", score: 600 },
-                { text: "인력 효율화: 동일 업무에 10명 → 2명으로 최적화 (80% 절감) → 나머지 인력은 신규 프로젝트에 투입", type: "block", score: 300 },
-                { text: "Demographics 추론 모델: TV 시청 행동 데이터 기반 연령/성별 추론 → 일일 100만 건 처리, 전체 광고 25% 활용 (월 3,000만건+)", type: "block", score: 350 },
-                { text: "Auto Hyperparameter Tuning: Bayesian Optimization 기반 자동 최적화 → LookAlike 모델 성능 12% 향상!", type: "coin", score: 250 },
-                { text: "Imbalanced Data 처리: 극심한 클래스 불균형(1:1000+) 처리 모델 아키텍처 설계 → Precision 1,000% 향상!!", type: "trophy", score: 500 },
-                { text: "LookAlike Audience Targeting: 시드 유저와 유사 잠재 고객 식별 모델 → 기존 대비 50%+ 성능 향상, Brand/Game 캠페인 적용", type: "block", score: 300 },
-                { text: "MLOps 통합 플랫폼: 미국/한국 연구소 AI 모델을 단일 프레임워크로 통합. CI/CD, 모니터링, 자동 배포. TFRecord 도입 학습 속도 최적화", type: "block", score: 300 },
-                { text: "3rd Party 확장: Vizio TV 대상 데모그래픽 모델 개발·배포 → 삼성 생태계 외부로 광고 비즈니스 확장!", type: "coin", score: 250 },
-                { text: "Brand/Game 광고 캠페인: LookAlike 모델을 활용한 직접 캠페인 운영 → 비즈니스 임팩트 검증 완료", type: "coin", score: 200 }
+                { text: "Demographic 스코어링 모델: Nielsen 패널 Ground Truth로 TV 사용자 연령·성별·가구 유형 예측 → 일일 100만 건 추론, 전체 광고 25% 활용 (월 3,000만건+)", type: "trophy", score: 500 },
+                { text: "LookAlike 모델링: 고가치 사용자 세그먼트 식별, 유사 잠재고객 최적 타겟팅 → 기존 대비 성능 50% 이상 향상! 캠페인 ROI 개선", type: "block", score: 350 },
+                { text: "데모그래픽 타겟팅 A/B 테스트 & 실험 설계: 모델 적용 여부 A/B 테스트 → CTR +12%, CVR +10% 달성!", type: "trophy", score: 500 },
+                { text: "3rd Party 확장: Vizio TV 대상 데모그래픽 모델 개발·배포 → 삼성 생태계 외부로 광고 비즈니스 확장", type: "block", score: 300 },
+                { text: "GIST AI 경진대회 최우수상(2nd): 전력 사용량 예측 Deep Learning 모델 (2020.12)", type: "trophy", score: 400 },
+                { text: "HAICon 2020 보안위협 탐지 AI 장려상: GRU 기반 Ensemble 모델 (한국정보보호학회)", type: "coin", score: 300 }
             ],
             boss: { name: "LEGACY SYSTEM", type: "robot" },
             enemy: "bug",
-            npcDialog: "기존 시스템의 한계를 부수고\n완전히 새로운 자동화 프레임워크를 만들었어.\n3개월이 1주일이 되는 마법...\n이건 진짜 전쟁이었어."
+            npcDialog: "일일 100만 건 추론, CTR +12%...\n숫자로 증명하는 게 광고 ML의 세계야.\n모델이 곧 매출인 시대를 열었지."
         },
         {
             id: 5,
-            years: "2022",
+            years: "2021~2023",
             theme: "space",
-            title: "Real-time AI Evolution",
-            subtitle: "Samsung Ads - AI Research",
-            description: "실시간 학습하는 AI.\n재학습 없이 지속 개선되는 모델.\nA/B 테스트로 효과를 정량 검증.\nDatabricks 활용 파이프라인 혁신.",
+            title: "AI Platform & MLOps",
+            subtitle: "Samsung Ads - Senior Data Scientist",
+            description: "AI Framework 구축 → 상품화 3개월→1주일!\n인력 10명→2명. Incremental Learning.\nMLOps 파이프라인 (Airflow·MLflow·SageMaker).\nDatabricks Data Team Transformation Award!",
             bgColor1: "#000020",
             bgColor2: "#000040",
             groundColor: "#1a1a3a",
             achievements: [
-                { text: "Incremental Learning 파이프라인 설계: 사용자 피드백 데이터를 실시간 반영 → 재학습 없이 지속적 성능 개선! 평균 10%+ 향상", type: "block", score: 350 },
-                { text: "TVPlus 광고 Scoring Model: 사용자 행동 데이터 + 콘텐츠 특성 결합 피처 엔지니어링 → CTR 예측 성능 개선", type: "block", score: 300 },
-                { text: "데모그래픽 타겟팅 A/B 테스트: 광고 캠페인에서 모델 적용 여부 A/B 테스트 설계·운영 → ROI 기반 의사결정에 기여", type: "coin", score: 250 },
-                { text: "Databricks 활용 광고 타겟팅 최적화: 데이터 파이프라인 자동화 → Data Team Transformation Award 수상!", type: "trophy", score: 400 },
-                { text: "기존 대비 평균 10% 이상 성능 향상 달성! Feedback loop 기반 자가 진화 AI 모델 완성", type: "trophy", score: 400 }
+                { text: "AI Framework 설계·개발: 광고 AI 모델의 학습·평가·서빙 자동화 통합 프레임워크 → 상품화 기간 3개월 → 1주일 미만! 인력 10명→2명!", type: "trophy", score: 600 },
+                { text: "MLOps 파이프라인 구축 (Airflow·MLflow·AWS SageMaker): 실험 트래킹~모니터링까지 전체 모델 라이프사이클 관리 플랫폼", type: "block", score: 350 },
+                { text: "Incremental Learning 도입: 사용자 피드백 실시간 반영 → 재학습 없이 지속 성능 개선, 기존 대비 평균 10%+ 향상", type: "block", score: 350 },
+                { text: "Auto Hyperparameter Tuning: Bayesian Optimization 기반 자동 최적화 → LookAlike 모델 성능 12% 향상!", type: "coin", score: 250 },
+                { text: "Imbalanced Data 처리: 극심한 클래스 불균형(1:1000+) 모델 아키텍처 설계 → Precision 기존 대비 1,000% 향상!", type: "trophy", score: 500 },
+                { text: "MLOps 통합 플랫폼: 미국/한국 연구소 AI 모델을 단일 프레임워크로 통합, CI/CD, 모니터링, TFRecord 학습 속도 최적화", type: "block", score: 300 },
+                { text: "Databricks Data Team Transformation Award 수상! 광고 타겟팅 최적화 및 데이터 파이프라인 자동화 공로", type: "trophy", score: 400 }
             ],
-            boss: null,
+            boss: { name: "LEGACY INFRA", type: "robot" },
             enemy: "asteroid",
-            npcDialog: "데이터는 흐르고, 모델은 스스로 진화한다.\nIncremental Learning으로\nAI의 미래를 본 시기였어."
+            npcDialog: "3개월이 1주일이 되는 마법.\n10명이 2명으로 줄어드는 자동화.\nMLOps의 힘을 보여준 시기야."
         },
         {
             id: 6,
@@ -169,11 +163,11 @@ const CAREER_DATA = {
         },
         {
             id: 7,
-            years: "2025",
+            years: "2025~현재",
             theme: "future",
-            title: "AI & Recommendation",
-            subtitle: "Samsung SmartTV - Staff Engineer / Data Scientist",
-            description: "최첨단 VLM, AI Agent, 추천 시스템으로\nSmartTV 경험을 혁신하는 현재.\nMamba4Rec A/B 테스트,\nVideo-to-Commerce 상용화까지.",
+            title: "Smart TV 추천 & VLM",
+            subtitle: "Samsung VD - Senior Data Scientist",
+            description: "전세계 1억대+ Samsung TV 추천 시스템 최적화.\nMamba4Rec A/B테스트, Personality Reranking.\nVLM 기반 메타데이터 자동화, Video-to-Commerce.\nAI Agent로 EMR 장애 자동 진단까지.",
             bgColor1: "#0a1a3a",
             bgColor2: "#0a3a5a",
             groundColor: "#1a2a3a",

@@ -720,13 +720,13 @@ const FlightGame = {
         ctx.fillText('—— CAREER TIMELINE ——', this.W / 2, this.H * 0.37);
         ctx.font = '5px "Press Start 2P", monospace';
         const timeline = [
-            { y: '2015-2018', t: 'Samsung VD - TV Platform Engineer' },
-            { y: '2019', t: 'Samsung C-Lab - 보청 앱 → CES 2020' },
-            { y: '2020', t: 'Samsung Ads - ML Engineer (AI대회 수상 2건)' },
-            { y: '2021', t: 'Samsung Ads - MLOps (상품화 3개월→1주일)' },
-            { y: '2022', t: 'Samsung Ads - Senior ML (비용 40% 절감)' },
-            { y: '2023-24', t: 'SNU 석사 - VLM 논문 (149인용) + 창업 대상' },
-            { y: '2025', t: 'Toss Bank - AI/ML (추천시스템, AI Agent)' },
+            { y: '2014-17', t: 'Samsung VD - SW Engineer (TV & Mobile)' },
+            { y: '2017-18', t: 'Samsung VD - Data Scientist (Ad Platform)' },
+            { y: '2018-19', t: 'Samsung C-Lab - 보청 앱 리딩 → CES 2019' },
+            { y: '2019-21', t: 'Samsung Ads - 광고타겟팅 (100만건/일)' },
+            { y: '2021-23', t: 'Samsung Ads - MLOps (상품화 3개월→1주일)' },
+            { y: '2023-25', t: 'SNU 석사 - VLM 논문 (149인용) + 창업 대상' },
+            { y: '2025~', t: 'Samsung VD - 추천시스템 & VLM & AI Agent' },
         ];
         for (let i = 0; i < timeline.length; i++) {
             const yPos = this.H * 0.41 + i * 14;
