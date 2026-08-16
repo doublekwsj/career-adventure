@@ -9,6 +9,8 @@ const FlightGame = {
     currentStage: 0,
     waveTimer: 0, waveIndex: 0,
     stageTimer: 0,
+    careerPopup: null, // { text, timer }
+    stageAchievements: [], // collected this stage
     flash: { timer: 0, color: '#fff' },
     shake: { x: 0, y: 0, timer: 0, intensity: 0 },
     slowMotion: 0,
@@ -129,9 +131,11 @@ const FlightGame = {
         this.boss = null;
         this.currentStage = 0; this.waveTimer = 0; this.waveIndex = 0;
         this.achievementsCollected = 0;
+        this.careerPopup = null;
+        this.stageAchievements = [];
         Effects.clear();
         this.state = 'stageIntro';
-        this.stageTimer = 180;
+        this.stageTimer = 240; // longer intro to read career info
     },
 
     startStage() {
@@ -139,6 +143,7 @@ const FlightGame = {
         this.boss = null;
         this.waveTimer = 60; this.waveIndex = 0;
         this.player.stageLevel = this.currentStage;
+        this.stageAchievements = [];
         this.state = 'playing';
     },
 
@@ -170,9 +175,16 @@ const FlightGame = {
             if (this.stageTimer <= 0) {
                 this.currentStage++;
                 if (this.currentStage >= STAGES.length) { this.state = 'ending'; }
-                else { this.state = 'stageIntro'; this.stageTimer = 180; }
+                else { this.state = 'stageIntro'; this.stageTimer = 240; }
             }
             return;
+        }
+
+        // Career popup (brief pause to show achievement text)
+        if (this.careerPopup) {
+            this.careerPopup.timer--;
+            if (this.careerPopup.timer <= 0) this.careerPopup = null;
+            return; // pause game while showing
         }
 
         if (this.state === 'bossWarning') {
@@ -402,9 +414,11 @@ const FlightGame = {
             case 'B': this.player.bombs = Math.min(5, this.player.bombs + 1); Effects.scoreText(p.x, p.y, 'BOMB+1', '#f0d000'); break;
             case 'career':
                 this.achievementsCollected++;
+                this.stageAchievements.push(p.careerText);
                 this.player.addScore(500);
-                Effects.scoreText(p.x, p.y - 20, p.careerText.slice(0, 30) + '...', '#8bc34a');
-                Effects.scoreText(p.x, p.y, '+500', '#f0d000');
+                // Show career popup (pauses game briefly)
+                this.careerPopup = { text: p.careerText, timer: 90 };
+                Effects.emit(p.x + 10, p.y + 10, { count: 20, colors: ['#8bc34a', '#f0d000', '#fff'], spread: 8, vy: -3, life: 30, size: 5, type: 'star', gravity: 0.05 });
                 break;
         }
     },
@@ -477,6 +491,8 @@ const FlightGame = {
         for (const p of this.powerups) p.draw(ctx);
         Effects.draw(ctx);
 
+        // Career popup overlay
+        if (this.careerPopup) { this._drawCareerPopup(ctx); }
         // Boss warning overlay
         if (this.state === 'bossWarning') { this._drawBossWarning(ctx); }
         // Stage clear overlay
@@ -538,22 +554,76 @@ const FlightGame = {
 
     _drawStageIntro(ctx) {
         const stage = STAGES[this.currentStage];
-        const progress = 1 - this.stageTimer / 180;
+        const progress = 1 - this.stageTimer / 240;
         ctx.textAlign = 'center';
         ctx.save();
-        ctx.globalAlpha = Math.min(1, progress * 3) * Math.min(1, (1 - progress) * 3);
-        ctx.fillStyle = '#fff';
-        ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText(`STAGE ${stage.id}`, this.W / 2, this.H * 0.35);
-        ctx.fillStyle = '#f0d000';
-        ctx.font = 'bold 12px "Press Start 2P", monospace';
-        ctx.fillText(stage.title, this.W / 2, this.H * 0.43);
-        ctx.fillStyle = '#4fc3f7';
-        ctx.font = '7px "Press Start 2P", monospace';
-        ctx.fillText(stage.subtitle, this.W / 2, this.H * 0.51);
+        ctx.globalAlpha = Math.min(1, progress * 4) * Math.min(1, (1 - progress) * 4);
+        // Dark overlay for readability
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0, this.H * 0.15, this.W, this.H * 0.7);
+        // Stage number + year
         ctx.fillStyle = '#888';
         ctx.font = '7px "Press Start 2P", monospace';
-        ctx.fillText(stage.years, this.W / 2, this.H * 0.57);
+        ctx.fillText(`STAGE ${stage.id} — ${stage.years}`, this.W / 2, this.H * 0.22);
+        // Title
+        ctx.fillStyle = '#f0d000';
+        ctx.font = 'bold 13px "Press Start 2P", monospace';
+        ctx.fillText(stage.title, this.W / 2, this.H * 0.30);
+        // Company + Role
+        ctx.fillStyle = '#4fc3f7';
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillText(stage.subtitle, this.W / 2, this.H * 0.37);
+        ctx.fillStyle = '#fff';
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillText(stage.role, this.W / 2, this.H * 0.42);
+        // Description (multi-line)
+        ctx.fillStyle = '#ccc';
+        ctx.font = '6px "Press Start 2P", monospace';
+        const lines = stage.description.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], this.W / 2, this.H * 0.50 + i * 16);
+        }
+        // Achievement preview
+        ctx.fillStyle = '#8bc34a';
+        ctx.font = '6px "Press Start 2P", monospace';
+        ctx.fillText(`[ ${stage.achievements.length} achievements to collect ]`, this.W / 2, this.H * 0.72);
+        // Kim Wonkyun label
+        ctx.fillStyle = '#666';
+        ctx.font = '5px "Press Start 2P", monospace';
+        ctx.fillText('김원균 (Kim Wonkyun) Career Adventure', this.W / 2, this.H * 0.80);
+        ctx.restore();
+    },
+
+    _drawCareerPopup(ctx) {
+        if (!this.careerPopup) return;
+        const alpha = Math.min(1, this.careerPopup.timer / 15);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        // Background box
+        ctx.fillStyle = 'rgba(0,30,0,0.85)';
+        ctx.fillRect(20, this.H * 0.35, this.W - 40, 80);
+        ctx.strokeStyle = '#8bc34a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(20, this.H * 0.35, this.W - 40, 80);
+        // Title
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#f0d000';
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillText('★ CAREER ACHIEVEMENT ★', this.W / 2, this.H * 0.35 + 18);
+        // Text (wrap if needed)
+        ctx.fillStyle = '#fff';
+        ctx.font = '6px "Press Start 2P", monospace';
+        const text = this.careerPopup.text;
+        if (text.length > 30) {
+            ctx.fillText(text.slice(0, 30), this.W / 2, this.H * 0.35 + 40);
+            ctx.fillText(text.slice(30, 60), this.W / 2, this.H * 0.35 + 54);
+        } else {
+            ctx.fillText(text, this.W / 2, this.H * 0.35 + 45);
+        }
+        // Score
+        ctx.fillStyle = '#8bc34a';
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillText('+500 pts', this.W / 2, this.H * 0.35 + 70);
         ctx.restore();
     },
 
@@ -573,13 +643,36 @@ const FlightGame = {
     },
 
     _drawStageClear(ctx) {
+        const stage = STAGES[this.currentStage];
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(0, this.H * 0.15, this.W, this.H * 0.7);
         ctx.textAlign = 'center';
         ctx.fillStyle = '#f0d000';
-        ctx.font = 'bold 14px "Press Start 2P", monospace';
-        ctx.fillText('STAGE CLEAR!', this.W / 2, this.H * 0.4);
+        ctx.font = 'bold 12px "Press Start 2P", monospace';
+        ctx.fillText('STAGE CLEAR!', this.W / 2, this.H * 0.22);
+        ctx.fillStyle = '#4fc3f7';
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillText(`${stage.subtitle} - ${stage.role}`, this.W / 2, this.H * 0.30);
         ctx.fillStyle = '#fff';
         ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText(`Score: ${this.player.score.toLocaleString()}`, this.W / 2, this.H * 0.5);
+        ctx.fillText(`Score: ${this.player.score.toLocaleString()}`, this.W / 2, this.H * 0.37);
+        // Show collected achievements
+        if (this.stageAchievements.length > 0) {
+            ctx.fillStyle = '#8bc34a';
+            ctx.font = '6px "Press Start 2P", monospace';
+            ctx.fillText(`Achievements collected: ${this.stageAchievements.length}/${stage.achievements.length}`, this.W / 2, this.H * 0.45);
+            ctx.fillStyle = '#ccc';
+            ctx.font = '5px "Press Start 2P", monospace';
+            for (let i = 0; i < Math.min(this.stageAchievements.length, 4); i++) {
+                ctx.fillText('★ ' + this.stageAchievements[i].slice(0, 35), this.W / 2, this.H * 0.52 + i * 16);
+            }
+        } else {
+            ctx.fillStyle = '#888';
+            ctx.font = '6px "Press Start 2P", monospace';
+            ctx.fillText('No achievements collected this stage', this.W / 2, this.H * 0.50);
+        }
+        ctx.restore();
     },
 
     _drawGameOver(ctx) {
@@ -599,37 +692,76 @@ const FlightGame = {
     },
 
     _drawEnding(ctx) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.8)';
+        ctx.fillRect(0, 0, this.W, this.H);
         ctx.textAlign = 'center';
         ctx.fillStyle = '#f0d000';
-        ctx.font = 'bold 12px "Press Start 2P", monospace';
-        ctx.fillText('MISSION COMPLETE!', this.W / 2, this.H * 0.15);
+        ctx.font = 'bold 11px "Press Start 2P", monospace';
+        ctx.fillText('MISSION COMPLETE!', this.W / 2, this.H * 0.07);
         ctx.fillStyle = '#fff';
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.fillText(`FINAL SCORE: ${this.player.score.toLocaleString()}`, this.W / 2, this.H * 0.25);
-        ctx.fillText(`Max Combo: x${this.player.maxCombo}`, this.W / 2, this.H * 0.32);
-        ctx.fillStyle = '#4fc3f7';
         ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText(CAREER_INFO.nameKr + ' (' + CAREER_INFO.name + ')', this.W / 2, this.H * 0.42);
-        ctx.fillStyle = '#aaa';
+        ctx.fillText(`FINAL SCORE: ${this.player.score.toLocaleString()}`, this.W / 2, this.H * 0.13);
+        ctx.fillStyle = '#888';
         ctx.font = '6px "Press Start 2P", monospace';
-        ctx.fillText(CAREER_INFO.title, this.W / 2, this.H * 0.48);
-        // Career highlights
+        ctx.fillText(`Achievements: ${this.achievementsCollected} | Max Combo: x${this.player.maxCombo}`, this.W / 2, this.H * 0.18);
+
+        // Career Summary
+        ctx.fillStyle = '#4fc3f7';
+        ctx.font = 'bold 9px "Press Start 2P", monospace';
+        ctx.fillText(CAREER_INFO.nameKr + ' (' + CAREER_INFO.name + ')', this.W / 2, this.H * 0.26);
+        ctx.fillStyle = '#fff';
+        ctx.font = '6px "Press Start 2P", monospace';
+        ctx.fillText(CAREER_INFO.title, this.W / 2, this.H * 0.31);
+
+        // Career timeline
+        ctx.fillStyle = '#f0d000';
+        ctx.font = '6px "Press Start 2P", monospace';
+        ctx.fillText('—— CAREER TIMELINE ——', this.W / 2, this.H * 0.37);
+        ctx.font = '5px "Press Start 2P", monospace';
+        const timeline = [
+            { y: '2015-2018', t: 'Samsung VD - TV Platform Engineer' },
+            { y: '2019', t: 'Samsung C-Lab - 보청 앱 → CES 2020' },
+            { y: '2020', t: 'Samsung Ads - ML Engineer (AI대회 수상 2건)' },
+            { y: '2021', t: 'Samsung Ads - MLOps (상품화 3개월→1주일)' },
+            { y: '2022', t: 'Samsung Ads - Senior ML (비용 40% 절감)' },
+            { y: '2023-24', t: 'SNU 석사 - VLM 논문 (149인용) + 창업 대상' },
+            { y: '2025', t: 'Toss Bank - AI/ML (추천시스템, AI Agent)' },
+        ];
+        for (let i = 0; i < timeline.length; i++) {
+            const yPos = this.H * 0.41 + i * 14;
+            ctx.fillStyle = '#888';
+            ctx.textAlign = 'left';
+            ctx.fillText(timeline[i].y, 20, yPos);
+            ctx.fillStyle = '#ccc';
+            ctx.textAlign = 'left';
+            ctx.fillText(timeline[i].t, 90, yPos);
+        }
+
+        // Key achievements
+        ctx.textAlign = 'center';
         ctx.fillStyle = '#8bc34a';
         ctx.font = '6px "Press Start 2P", monospace';
-        const highlights = [
-            '10+ Years at Samsung Electronics',
-            'IEEE Access Paper (149 citations, SOTA)',
-            'Two Startups as CEO (REFINED)',
-            'CES 2020 Exhibition',
-            'Grand Prize - Lab Startup Demoday',
-            'Seoul National University M.S.'
+        ctx.fillText('—— KEY ACHIEVEMENTS ——', this.W / 2, this.H * 0.76);
+        ctx.fillStyle = '#fff';
+        ctx.font = '5px "Press Start 2P", monospace';
+        const keys = [
+            'IEEE Access 논문 (149 citations, SOTA)',
+            'REFINED 창업 대상 (과기부·교육부)',
+            '일일 100만건 추론 ML 시스템 운영',
+            'Samsung SW Excellent Programmer',
         ];
-        for (let i = 0; i < highlights.length; i++) {
-            ctx.fillText(highlights[i], this.W / 2, this.H * 0.56 + i * 18);
+        for (let i = 0; i < keys.length; i++) {
+            ctx.fillText('★ ' + keys[i], this.W / 2, this.H * 0.80 + i * 13);
         }
+
+        // Contact
+        ctx.fillStyle = '#4fc3f7';
+        ctx.font = '5px "Press Start 2P", monospace';
+        ctx.fillText(CAREER_INFO.email + ' | LinkedIn', this.W / 2, this.H * 0.93);
         ctx.fillStyle = '#666';
-        ctx.font = '6px "Press Start 2P", monospace';
-        ctx.fillText(this.isMobile ? 'TAP TO RETURN' : 'PRESS SPACE', this.W / 2, this.H * 0.92);
+        ctx.fillText(this.isMobile ? 'TAP TO RETURN' : 'PRESS SPACE', this.W / 2, this.H * 0.97);
+        ctx.restore();
     },
 
     _drawHUD(ctx) {
@@ -660,12 +792,14 @@ const FlightGame = {
             ctx.fillText(`x${this.player.combo} COMBO`, this.W / 2, this.H - 15);
             ctx.globalAlpha = 1;
         }
-        // Stage indicator
+        // Stage indicator + role
         ctx.textAlign = 'left';
         ctx.fillStyle = '#888';
         ctx.font = '6px "Press Start 2P", monospace';
         const stage = STAGES[this.currentStage];
-        ctx.fillText(`STG${stage.id} ${stage.years}`, 8, 22);
+        ctx.fillText(`${stage.years} | ${stage.subtitle}`, 8, 22);
+        ctx.fillStyle = '#4fc3f7';
+        ctx.fillText(stage.role, 8, 34);
     }
 };
 
