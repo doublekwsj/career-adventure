@@ -230,11 +230,12 @@ body {
 /* Mobile Controls */
 #mobile-controls {
     position: absolute;
-    bottom: 16px;
-    left: 16px;
-    right: 16px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     z-index: 50;
 }
 
@@ -242,43 +243,101 @@ body {
 
 #mobile-left, #mobile-right {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: flex-end;
 }
 
 .ctrl-btn {
     border-radius: 50%;
-    border: 3px solid rgba(255,255,255,0.5);
-    background: rgba(255,255,255,0.1);
+    border: 3px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.15);
     color: #fff;
     font-family: 'Press Start 2P', monospace;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s;
 }
 
 .arrow-btn {
-    width: 56px;
-    height: 56px;
-    font-size: 18px;
+    width: 70px;
+    height: 70px;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 .jump-btn {
-    width: 72px;
-    height: 72px;
-    font-size: 16px;
-    border-color: rgba(240,208,0,0.6);
+    width: 90px;
+    height: 90px;
+    font-size: 12px;
+    border-color: rgba(240,208,0,0.7);
+    background: rgba(240,208,0,0.15);
 }
 
 .action-btn {
-    width: 52px;
-    height: 52px;
-    font-size: 16px;
+    width: 60px;
+    height: 60px;
+    font-size: 9px;
+    border-color: rgba(79,195,247,0.6);
+    background: rgba(79,195,247,0.1);
 }
 
-.ctrl-btn:active {
-    background: rgba(255,255,255,0.3);
-    transform: scale(0.92);
+.ctrl-btn:active, .ctrl-btn.pressed {
+    background: rgba(255,255,255,0.4);
+    transform: scale(0.9);
+}
+
+.jump-btn:active, .jump-btn.pressed {
+    background: rgba(240,208,0,0.4);
+}
+
+#mobile-tap-zone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+}
+
+#mobile-tap-zone.hidden { display: none; }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    #hud {
+        padding: 6px 10px;
+        font-size: 8px;
+    }
+    #hud-year { font-size: 11px; }
+    #hud-score { font-size: 9px; }
+    #hud-coins { font-size: 9px; }
+    #hud-progress-wrap { width: 80px; }
+    #hud-zone-title { font-size: 6px; }
+
+    #popup {
+        max-width: 90vw;
+        padding: 16px 20px;
+        font-size: 9px;
+        max-height: 60vh;
+    }
+    #popup-content h3 { font-size: 11px; }
+
+    #cutscene-content {
+        padding: 20px;
+    }
+    #cutscene-content h2 { font-size: 14px; }
+    #cutscene-content p { font-size: 8px; }
+    #cutscene-content .zone-year { font-size: 18px; }
+}
+
+@media (max-height: 500px) {
+    .arrow-btn { width: 56px; height: 56px; font-size: 18px; }
+    .jump-btn { width: 72px; height: 72px; font-size: 10px; }
+    .action-btn { width: 48px; height: 48px; font-size: 8px; }
+    #mobile-controls { bottom: 5px; }
 }

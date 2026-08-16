@@ -102,7 +102,7 @@ const Cutscene = {
     _render() {
         const content = document.getElementById('cutscene-content');
         const visibleText = this.currentText.substring(0, this.charIndex).replace(/\n/g, '<br>');
-        const skipHint = this.phase === 'display' ? '<p class="skip-hint">PRESS ANY KEY TO CONTINUE</p>' : '';
+        const skipHint = this.phase === 'display' ? '<p class="skip-hint">TAP or PRESS ANY KEY</p>' : '';
         const zoneIdx = CAREER_DATA.zones.findIndex(z => z.years === this.currentYear);
         const levelData = Sprites.PLAYER_LEVELS[zoneIdx >= 0 ? zoneIdx : 0];
         const levelUpHtml = zoneIdx > 0 ?

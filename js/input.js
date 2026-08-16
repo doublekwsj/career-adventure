@@ -1,8 +1,7 @@
 const Input = {
     keys: {},
     justPressed: {},
-    mouseX: 0,
-    mouseY: 0,
+    isMobile: false,
 
     init() {
         window.addEventListener('keydown', (e) => {
@@ -19,36 +18,76 @@ const Input = {
             this.keys[e.code] = false;
         });
 
-        // Mouse/touch for menus
-        window.addEventListener('mousemove', (e) => {
-            this.mouseX = e.clientX;
-            this.mouseY = e.clientY;
-        });
+        // Detect mobile
+        this.isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0) &&
+                        (window.innerWidth <= 1024);
 
-        // Mobile controls
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        if (this.isMobile) {
             document.getElementById('mobile-controls').classList.remove('hidden');
-            this._setupMobileButton('btn-left', 'ArrowLeft');
-            this._setupMobileButton('btn-right', 'ArrowRight');
-            this._setupMobileButton('btn-jump', 'Space');
-            this._setupMobileButton('btn-down', 'ArrowDown');
+            document.getElementById('mobile-tap-zone').classList.remove('hidden');
+            this._setupMobileControls();
+            this._setupTapZone();
         }
     },
 
-    _setupMobileButton(id, keyCode) {
-        const btn = document.getElementById(id);
-        const start = (e) => {
-            e.preventDefault();
-            if (!this.keys[keyCode]) this.justPressed[keyCode] = true;
-            this.keys[keyCode] = true;
+    _setupMobileControls() {
+        // Use a unified touch handler for multi-touch support
+        const buttons = {
+            'btn-left': 'ArrowLeft',
+            'btn-right': 'ArrowRight',
+            'btn-jump': 'Space',
+            'btn-down': 'ArrowDown'
         };
-        const end = (e) => {
-            e.preventDefault();
-            this.keys[keyCode] = false;
-        };
-        btn.addEventListener('touchstart', start, { passive: false });
-        btn.addEventListener('touchend', end, { passive: false });
-        btn.addEventListener('touchcancel', end, { passive: false });
+
+        for (const [id, keyCode] of Object.entries(buttons)) {
+            const btn = document.getElementById(id);
+            if (!btn) continue;
+
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!this.keys[keyCode]) this.justPressed[keyCode] = true;
+                this.keys[keyCode] = true;
+                btn.classList.add('pressed');
+            }, { passive: false });
+
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.keys[keyCode] = false;
+                btn.classList.remove('pressed');
+            }, { passive: false });
+
+            btn.addEventListener('touchcancel', (e) => {
+                this.keys[keyCode] = false;
+                btn.classList.remove('pressed');
+            }, { passive: false });
+
+            // Handle finger sliding off button
+            btn.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = btn.getBoundingClientRect();
+                const inside = touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                               touch.clientY >= rect.top && touch.clientY <= rect.bottom;
+                if (!inside) {
+                    this.keys[keyCode] = false;
+                    btn.classList.remove('pressed');
+                }
+            }, { passive: false });
+        }
+    },
+
+    _setupTapZone() {
+        // Tap anywhere on screen (outside buttons) to trigger "anyKey" for menus/popups
+        const tapZone = document.getElementById('mobile-tap-zone');
+        tapZone.addEventListener('touchstart', (e) => {
+            // Only act as "any key" press for title/cutscene/popup
+            this.justPressed['Space'] = true;
+            this.keys['Space'] = true;
+            // Auto-release after short time
+            setTimeout(() => { this.keys['Space'] = false; }, 100);
+        }, { passive: true });
     },
 
     isDown(code) {

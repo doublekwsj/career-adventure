@@ -37,16 +37,33 @@ const Game = {
         window.addEventListener('keydown', enableAudio);
         window.addEventListener('touchstart', enableAudio);
 
+        // Popup tap to close (for mobile)
+        document.getElementById('popup').addEventListener('touchstart', (e) => {
+            // Don't close if tapping a link
+            if (e.target.tagName === 'A') return;
+            if (this.popupVisible) {
+                this.justPressed_space = true;
+            }
+        });
+
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
     },
 
     resize() {
-        const maxW = 960;
-        const maxH = 540;
+        const isMobile = window.innerWidth <= 768;
+        // On mobile, use smaller internal resolution for performance
+        const maxW = isMobile ? 640 : 960;
+        const maxH = isMobile ? 360 : 540;
         const ratio = maxW / maxH;
         let w = window.innerWidth;
         let h = window.innerHeight;
+
+        // On mobile, leave space for controls at bottom
+        if (isMobile) {
+            h = h * 0.65; // top 65% for game, bottom 35% for controls
+        }
+
         if (w / h > ratio) w = h * ratio;
         else h = w / ratio;
 
@@ -115,11 +132,13 @@ const Game = {
         // Popup dismiss
         if (this.popupVisible) {
             this.popupTimer++;
-            if (Input.wasPressed('Space') || Input.wasPressed('Enter') || this.popupTimer > 180) {
+            if (Input.wasPressed('Space') || Input.wasPressed('Enter') || this.justPressed_space || this.popupTimer > 180) {
+                this.justPressed_space = false;
                 this.hidePopup();
             }
             return; // pause game while popup shown
         }
+        this.justPressed_space = false;
 
         // Player update
         this.player.update();
@@ -441,7 +460,7 @@ const Game = {
         if (Math.sin(t * 0.08) > -0.3) {
             ctx.fillStyle = '#fff';
             ctx.font = '11px "Press Start 2P", monospace';
-            ctx.fillText('PRESS ANY KEY TO START', w / 2, h * 0.92);
+            ctx.fillText(Input.isMobile ? 'TAP TO START' : 'PRESS ANY KEY TO START', w / 2, h * 0.92);
         }
     },
 
@@ -474,7 +493,7 @@ const Game = {
             <p style="font-size:10px; color:${scoreColor};">+${data.score || 200} pts</p>
             <p style="margin-top:8px;">${data.text}</p>
             ${urlHtml}
-            <p class="close-hint">PRESS SPACE TO CONTINUE</p>
+            <p class="close-hint">TAP or PRESS SPACE</p>
         `;
         popup.classList.remove('hidden');
         setTimeout(() => popup.classList.add('show'), 10);
@@ -554,7 +573,7 @@ const Game = {
             <p style="font-size:8px; color:#f0d000;"><strong>Tech Stack</strong></p>
             ${skillsHtml}
             <br>
-            <p class="close-hint">PRESS SPACE TO REPLAY</p>
+            <p class="close-hint">TAP or PRESS SPACE TO REPLAY</p>
         `;
         popup.classList.remove('hidden');
         setTimeout(() => popup.classList.add('show'), 10);
