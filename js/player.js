@@ -42,7 +42,9 @@ class Player {
         this.comboTimer = 0;
         this.hp = 3;
         this.maxHp = 3;
+        this.lives = 3;
         this.dead = false;
+        this.gameOver = false;
         this.dustTimer = 0;
 
         // Double jump

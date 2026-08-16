@@ -165,34 +165,41 @@ class World {
             }
         });
 
-        // --- Enemies ---
+        // --- Enemies (difficulty ramp: zone 0 is forgiving, later zones are dense) ---
         const enemyType = zone.enemy;
-        const enemyCount = 5 + zoneIdx; // 5-11 ground enemies per zone
+        const enemyCount = [3, 4, 5, 6, 7, 8, 9][zoneIdx] || 5;
+        const firstEnemyCol = zoneIdx === 0 ? 25 : 12; // zone 0: give player room to learn
         for (let i = 0; i < enemyCount; i++) {
-            const eCol = startCol + 10 + i * Math.floor(usableWidth / enemyCount);
+            const eCol = startCol + firstEnemyCol + i * Math.floor((usableWidth - firstEnemyCol) / enemyCount);
             const eX = eCol * TILE_SIZE;
             const eY = (groundRow - 1) * TILE_SIZE;
-            this.enemies.push(new Enemy(eX, eY, enemyType));
+            const enemy = new Enemy(eX, eY, enemyType);
+            // Slower patrol speed in early zones
+            if (zoneIdx === 0) enemy.vx = -0.7;
+            else if (zoneIdx === 1) enemy.vx = -1.0;
+            this.enemies.push(enemy);
         }
 
-        // --- Flying enemies (from zone 1 onwards) ---
-        if (zoneIdx >= 1) {
-            const flyCount = 1 + Math.floor(zoneIdx / 2); // 1,1,2,2,3,3 flying enemies
+        // --- Flying enemies (from zone 2 onwards, to give player time to learn basics) ---
+        if (zoneIdx >= 2) {
+            const flyCount = 1 + Math.floor((zoneIdx - 2) / 2); // 1,1,2,2,3 flying enemies
             for (let i = 0; i < flyCount; i++) {
-                const eCol = startCol + 18 + i * Math.floor(usableWidth / flyCount);
+                const eCol = startCol + 20 + i * Math.floor(usableWidth / flyCount);
                 const eX = eCol * TILE_SIZE;
-                const eY = (groundRow - 5) * TILE_SIZE; // mid-air height
+                const eY = (groundRow - 5) * TILE_SIZE;
                 this.enemies.push(new Enemy(eX, eY, 'flying'));
             }
         }
 
-        // --- Extra elevated enemies on platforms ---
-        const platDefs = this._getPlatformPositions(zoneIdx);
-        if (platDefs.length > 0) {
-            const platEnemy = platDefs[Math.floor(platDefs.length / 2)];
-            const peX = (startCol + platEnemy.col + 1) * TILE_SIZE;
-            const peY = (platEnemy.row - 1) * TILE_SIZE;
-            this.enemies.push(new Enemy(peX, peY, enemyType));
+        // --- Extra elevated enemies on platforms (from zone 1) ---
+        if (zoneIdx >= 1) {
+            const platDefs = this._getPlatformPositions(zoneIdx);
+            if (platDefs.length > 0) {
+                const platEnemy = platDefs[Math.floor(platDefs.length / 2)];
+                const peX = (startCol + platEnemy.col + 1) * TILE_SIZE;
+                const peY = (platEnemy.row - 1) * TILE_SIZE;
+                this.enemies.push(new Enemy(peX, peY, enemyType));
+            }
         }
 
         // --- Boss ---

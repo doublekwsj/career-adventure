@@ -13,6 +13,8 @@ const Game = {
     popupQueue: [],
     popupVisible: false,
     popupTimer: 0,
+    tutorialTimer: 420, // show tutorial hints for first 7 seconds
+    tutorialDone: false,
 
     init() {
         this.canvas = document.getElementById('game-canvas');
@@ -79,6 +81,8 @@ const Game = {
         );
         this.collected = 0;
         this.currentZone = 0;
+        this.tutorialTimer = 420;
+        this.tutorialDone = false;
         this.state = 'cutscene';
         HUD.show();
         Cutscene.lastZone = -1;
@@ -119,11 +123,12 @@ const Game = {
         }
 
         if (this.state !== 'playing') return;
+        if (this.player && this.player.gameOver) return;
 
         // Popup dismiss
         if (this.popupVisible) {
             this.popupTimer++;
-            if (Input.wasPressed('Space') || Input.wasPressed('Enter') || this.popupTimer > 180) {
+            if (Input.wasPressed('Space') || Input.wasPressed('Enter') || this.popupTimer > 300) {
                 this.hidePopup();
             }
             return; // pause game while popup shown
@@ -298,18 +303,40 @@ const Game = {
             }
         }
 
-        // Death by falling
-        if (this.player.y > MAP_ROWS * TILE_SIZE) {
+        // Death by falling or HP=0
+        const fellOff = this.player.y > MAP_ROWS * TILE_SIZE;
+        if (fellOff || this.player.dead) {
             this.player.y = (MAP_ROWS - 5) * TILE_SIZE;
             this.player.vy = 0;
-            this.player.hit();
-            if (this.player.dead) {
-                // Respawn
-                this.player.hp = this.player.maxHp;
-                this.player.dead = false;
-                this.player.x = (this.currentZone * ZONE_WIDTH + 5) * TILE_SIZE;
-                this.player.y = (MAP_ROWS - 5) * TILE_SIZE;
+            if (!this.player.dead) this.player.hp = 0; // fell off = instant death
+            this.player.dead = false;
+            this.player.lives--;
+            Particles.emit(this.player.x + this.player.w / 2, this.player.y, {
+                count: 12, colors: ['#f44336', '#ff6b6b', '#fff'],
+                spread: 5, vy: -4, life: 30, size: 5, type: 'star', gravity: 0.2
+            });
+
+            if (this.player.lives <= 0) {
+                // Game over
+                this.player.gameOver = true;
+                Audio.play('hurt');
+                setTimeout(() => this.showGameOver(), 800);
+                return;
             }
+
+            // Respawn with full HP at zone start
+            this.player.hp = this.player.maxHp;
+            this.player.x = (this.currentZone * ZONE_WIDTH + 5) * TILE_SIZE;
+            this.player.vx = 0;
+            this.player.invincible = true;
+            this.player.invincibleTimer = 90;
+            Audio.play('hurt');
+        }
+
+        // Tutorial countdown (only in zone 0)
+        if (!this.tutorialDone && this.currentZone === 0 && this.tutorialTimer > 0) {
+            this.tutorialTimer--;
+            if (this.tutorialTimer <= 0) this.tutorialDone = true;
         }
 
         // World update
@@ -354,6 +381,16 @@ const Game = {
         // HUD zone indicator bar
         this.renderZoneBar(ctx);
 
+        // HP hearts
+        if (this.player && (this.state === 'playing' || this.state === 'cutscene')) {
+            this.renderHP(ctx);
+        }
+
+        // Tutorial hints (zone 0 only)
+        if (!this.tutorialDone && this.currentZone === 0 && this.tutorialTimer > 0) {
+            this.renderTutorial(ctx);
+        }
+
         // Update HUD
         if (this.state === 'playing' || this.state === 'ending') {
             const zone = CAREER_DATA.zones[this.currentZone];
@@ -366,7 +403,10 @@ const Game = {
                 combo: this.player.combo,
                 collected: this.collected,
                 total: this.totalAchievements,
-                progress
+                progress,
+                hp: this.player.hp,
+                maxHp: this.player.maxHp,
+                lives: this.player.lives
             });
         }
     },
@@ -497,6 +537,93 @@ const Game = {
         }
     },
 
+    renderHP(ctx) {
+        const p = this.player;
+        const sx = 8;
+        const sy = this.canvas.height - 22;
+        // Lives
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`x${p.lives}`, sx + 18, sy + 9);
+        // Mini head icon
+        ctx.fillStyle = '#ffd5a3';
+        ctx.fillRect(sx, sy, 12, 12);
+        ctx.fillStyle = '#2a1a0a';
+        ctx.fillRect(sx, sy - 2, 12, 4);
+        // HP hearts
+        for (let i = 0; i < p.maxHp; i++) {
+            const hx = sx + 44 + i * 14;
+            ctx.fillStyle = i < p.hp ? '#f44336' : '#444';
+            ctx.fillRect(hx, sy + 2, 10, 8);
+            // heart shape hint
+            ctx.fillStyle = i < p.hp ? '#ff6b6b' : '#333';
+            ctx.fillRect(hx + 1, sy + 1, 4, 3);
+            ctx.fillRect(hx + 5, sy + 1, 4, 3);
+        }
+    },
+
+    renderTutorial(ctx) {
+        const t = this.tutorialTimer;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const isMob = Input.isMobile;
+
+        // Hint 1: Move (shown 420→200)
+        if (t > 200) {
+            const alpha = Math.min(1, (t - 200) / 40) * Math.min(1, (t - 380) < 0 ? 1 : (420 - t) / 40);
+            ctx.save();
+            ctx.globalAlpha = Math.min(1, (420 - t) / 30 + (t > 380 ? 0 : 1)) * 0.85;
+            this._drawHint(ctx, w / 2, h * 0.78, isMob ? 'LEFT/RIGHT buttons' : '← → to Move');
+            ctx.restore();
+        }
+
+        // Hint 2: Jump (shown 280→100)
+        if (t <= 280 && t > 100) {
+            const alpha = Math.min(1, (280 - t) / 30) * Math.min(1, (t - 100) / 30);
+            ctx.save();
+            ctx.globalAlpha = alpha * 0.85;
+            this._drawHint(ctx, w / 2, h * 0.78, isMob ? 'JUMP button (x2 double jump)' : 'SPACE to Jump  (x2 double jump!)');
+            ctx.restore();
+        }
+
+        // Hint 3: Attack/Dash (shown 140→0)
+        if (t <= 140) {
+            const alpha = Math.min(1, (140 - t) / 20) * Math.min(1, t / 20);
+            ctx.save();
+            ctx.globalAlpha = alpha * 0.85;
+            this._drawHint(ctx, w / 2, h * 0.78, isMob ? 'ATK: punch  DASH: dash through enemies' : 'Z: Attack  Shift/X: Dash through enemies');
+            ctx.restore();
+        }
+
+        // "Go right!" arrow (first 300 frames)
+        if (t > 120) {
+            const arrowAlpha = Math.min(1, t / 60) * Math.min(1, (t - 120) / 30) * 0.6;
+            const bounce = Math.sin(Date.now() * 0.006) * 4;
+            ctx.save();
+            ctx.globalAlpha = arrowAlpha;
+            ctx.fillStyle = '#f0d000';
+            ctx.font = 'bold 14px "Press Start 2P", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('→', w * 0.75 + bounce, h * 0.5);
+            ctx.font = '7px "Press Start 2P", monospace';
+            ctx.fillStyle = '#fff';
+            ctx.fillText('Go right!', w * 0.75 + bounce, h * 0.5 + 18);
+            ctx.restore();
+        }
+    },
+
+    _drawHint(ctx, x, y, text) {
+        const isMob = Input.isMobile;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        const fs = isMob ? 7 : 8;
+        ctx.font = `${fs}px "Press Start 2P", monospace`;
+        const tw = ctx.measureText(text).width;
+        ctx.fillRect(x - tw / 2 - 10, y - 14, tw + 20, 22);
+        ctx.fillStyle = '#f0d000';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, x, y);
+    },
+
     renderZoneBar(ctx) {
         if (this.state !== 'playing') return;
         const barH = 3;
@@ -549,6 +676,24 @@ const Game = {
         popup.classList.remove('show');
         setTimeout(() => popup.classList.add('hidden'), 300);
         this.popupVisible = false;
+    },
+
+    showGameOver() {
+        this.state = 'ending';
+        const popup = document.getElementById('popup');
+        const content = document.getElementById('popup-content');
+        content.innerHTML = `
+            <h3 style="color:#f44336;">GAME OVER</h3>
+            <p style="font-size:10px; color:#aaa; margin:8px 0;">Don't give up!</p>
+            <p style="font-size:9px; color:#f0d000;">SCORE: ${this.player.score.toLocaleString()}</p>
+            <p style="font-size:8px;">Achievements: ${this.collected}/${this.totalAchievements}</p>
+            <br>
+            <p style="font-size:8px; color:#4fc3f7;">Tip: Z to attack, SPACE x2 to double jump!</p>
+            <p class="close-hint">TAP or PRESS SPACE TO RETRY</p>
+        `;
+        popup.classList.remove('hidden');
+        setTimeout(() => popup.classList.add('show'), 10);
+        this.popupVisible = true;
     },
 
     showEnding() {

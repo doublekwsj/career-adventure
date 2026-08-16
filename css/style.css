@@ -66,6 +66,12 @@ body {
     color: #aaa;
 }
 
+#hud-hp {
+    font-size: 13px;
+    margin-top: 3px;
+    letter-spacing: 2px;
+}
+
 #hud-score {
     font-size: 12px;
     color: #fff;
