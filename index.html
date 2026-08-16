@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kim Wonkyun's Career Adventure</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="hud" class="hidden">
+            <div id="hud-left">
+                <div id="hud-year">2015</div>
+                <div id="hud-zone-title"></div>
+            </div>
+            <div id="hud-center">
+                <div id="hud-score">SCORE: 0</div>
+                <div id="hud-combo" class="hidden">COMBO x1</div>
+            </div>
+            <div id="hud-right">
+                <div id="hud-coins">&#9733; 0 / 0</div>
+                <div id="hud-progress-wrap">
+                    <div id="hud-progress-bar"></div>
+                    <div id="hud-progress-markers"></div>
+                </div>
+            </div>
+        </div>
+        <div id="popup" class="hidden">
+            <div id="popup-content"></div>
+        </div>
+        <div id="cutscene" class="hidden">
+            <div id="cutscene-content"></div>
+        </div>
+        <div id="mobile-controls" class="hidden">
+            <div id="mobile-left">
+                <button id="btn-left" class="ctrl-btn arrow-btn">&#9664;</button>
+                <button id="btn-right" class="ctrl-btn arrow-btn">&#9654;</button>
+            </div>
+            <div id="mobile-right">
+                <button id="btn-jump" class="ctrl-btn jump-btn">A</button>
+                <button id="btn-down" class="ctrl-btn action-btn">&#9660;</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/cutscene.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
