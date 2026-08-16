@@ -64,6 +64,8 @@ const Sprites = {
         this.cache.enemy_asteroid = this._drawEnemyAsteroid();
         this.cache.enemy_deadline_1 = this._drawEnemyDeadline(false);
         this.cache.enemy_deadline_2 = this._drawEnemyDeadline(true);
+        this.cache.enemy_flying_1 = this._drawEnemyFlying(false);
+        this.cache.enemy_flying_2 = this._drawEnemyFlying(true);
         this.cache.enemy_squished = this._drawSquished();
 
         // Boss
@@ -725,6 +727,39 @@ const Sprites = {
         ctx.fillRect(2, 2, 26, 6);
         ctx.fillStyle = '#555';
         ctx.fillRect(4, 4, 22, 2);
+        return c;
+    },
+
+    _drawEnemyFlying(alt) {
+        const c = this._c(30, 22);
+        const ctx = c.getContext('2d');
+        const bob = alt ? 1 : 0;
+        // Body (drone shape)
+        ctx.fillStyle = '#cc3333';
+        ctx.fillRect(8, 6 + bob, 14, 10);
+        // Cockpit
+        ctx.fillStyle = '#ff6666';
+        ctx.fillRect(10, 8 + bob, 10, 6);
+        // Eye
+        ctx.fillStyle = '#ff0';
+        ctx.fillRect(12, 9 + bob, 4, 3);
+        ctx.fillStyle = '#f00';
+        ctx.fillRect(13, 10 + bob, 2, 1);
+        // Wings
+        ctx.fillStyle = '#555';
+        ctx.fillRect(2, 7 + bob, 7, 4);
+        ctx.fillRect(21, 7 + bob, 7, 4);
+        // Wing tips
+        ctx.fillStyle = '#777';
+        ctx.fillRect(0, 8 + bob, 3, 2);
+        ctx.fillRect(27, 8 + bob, 3, 2);
+        // Rotor blades (animated)
+        ctx.fillStyle = alt ? '#f0d000' : '#aaa';
+        ctx.fillRect(4, 5 + bob, 5, 2);
+        ctx.fillRect(21, 5 + bob, 5, 2);
+        // Underbody
+        ctx.fillStyle = '#991111';
+        ctx.fillRect(11, 15 + bob, 8, 3);
         return c;
     },
 

@@ -299,6 +299,19 @@ body {
     background: rgba(139,195,74,0.15);
 }
 
+.atk-btn {
+    width: 68px;
+    height: 68px;
+    font-size: 10px;
+    border-color: rgba(255,107,107,0.8);
+    background: rgba(255,107,107,0.2);
+    color: #ff6b6b;
+}
+
+.atk-btn.pressed {
+    background: rgba(255,107,107,0.55);
+}
+
 .ctrl-btn.pressed {
     background: rgba(255,255,255,0.5);
     transform: scale(0.88);
@@ -354,6 +367,7 @@ body {
     .arrow-btn { width: 60px; height: 60px; font-size: 20px; }
     .jump-btn { width: 72px; height: 72px; font-size: 9px; }
     .dash-btn { width: 52px; height: 52px; font-size: 8px; }
+    .atk-btn { width: 56px; height: 56px; font-size: 8px; }
     .action-btn { width: 46px; height: 46px; font-size: 14px; }
 }
 

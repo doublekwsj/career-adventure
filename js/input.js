@@ -67,7 +67,7 @@ const Input = {
         this._setupButton('btn-left', 'ArrowLeft');
         this._setupButton('btn-right', 'ArrowRight');
         this._setupButton('btn-jump', 'Space');
-        this._setupButton('btn-down', 'ArrowDown');
+        this._setupButton('btn-atk', 'KeyZ');
         this._setupButton('btn-dash', 'ShiftLeft');
     },
 

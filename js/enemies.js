@@ -27,6 +27,13 @@ class Enemy {
         } else if (type === 'deadline') {
             this.vx = -2.0;
             this.h = 28;
+        } else if (type === 'flying') {
+            this.w = 30;
+            this.h = 22;
+            this.vx = (Math.random() > 0.5 ? 1 : -1) * 1.6;
+            this.flyBaseY = y;
+            this.flyPhase = Math.random() * Math.PI * 2;
+            this.patrolRange = 140;
         }
     }
 
@@ -46,6 +53,16 @@ class Enemy {
             this.x += this.vx;
             this.y += this.vy;
             return this.y > mapRows * tileSize; // remove if off screen
+        }
+
+        if (this.type === 'flying') {
+            this.flyPhase += 0.04;
+            this.x += this.vx;
+            this.y = this.flyBaseY + Math.sin(this.flyPhase) * 28;
+            if (Math.abs(this.x - this.startX) > this.patrolRange) {
+                this.vx = -this.vx;
+            }
+            return false;
         }
 
         // Gravity
@@ -111,6 +128,8 @@ class Enemy {
         let spriteName;
         if (this.type === 'asteroid') {
             spriteName = 'enemy_asteroid';
+        } else if (this.type === 'flying') {
+            spriteName = `enemy_flying_${this.animFrame + 1}`;
         } else {
             spriteName = `enemy_${this.type}_${this.animFrame + 1}`;
         }

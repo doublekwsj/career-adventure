@@ -56,6 +56,14 @@ class Player {
         this.dashSpeed = 14;
         this.dashDuration = 12;
         this.dashCooldownMax = 40;
+
+        // Attack
+        this.attacking = false;
+        this.attackTimer = 0;
+        this.attackCooldown = 0;
+        this.attackDuration = 14;
+        this.attackCooldownMax = 24;
+        this.attackHitSet = new Set(); // enemies hit in current attack swing
     }
 
     setLevel(level) {
@@ -137,6 +145,28 @@ class Player {
             this.jumpHoldTime = 0;
         }
 
+        // Attack
+        if (this.attackCooldown > 0) this.attackCooldown--;
+        if ((Input.wasPressed('KeyZ') || Input.wasPressed('KeyJ') || Input.wasPressed('KeyC')) && this.attackCooldown <= 0 && !this.attacking && !this.dashing) {
+            this.attacking = true;
+            this.attackTimer = this.attackDuration;
+            this.attackCooldown = this.attackCooldownMax;
+            this.attackHitSet.clear();
+            Audio.play('stomp');
+            Particles.emit(
+                this.facing === 1 ? this.x + this.w + 10 : this.x - 10,
+                this.y + this.h * 0.4,
+                { count: 5, colors: ['#f0d000', '#fff', '#ff6b6b'], spread: 3, vx: this.facing * 4, vy: -1, life: 10, size: 4, type: 'star', gravity: 0.1 }
+            );
+        }
+        if (this.attacking) {
+            this.attackTimer--;
+            if (this.attackTimer <= 0) {
+                this.attacking = false;
+                this.attackHitSet.clear();
+            }
+        }
+
         // Dash
         if (this.dashCooldown > 0) this.dashCooldown--;
         if ((Input.wasPressed('ShiftLeft') || Input.wasPressed('ShiftRight') || Input.wasPressed('KeyX')) && this.dashCooldown <= 0 && !this.dashing) {
@@ -165,7 +195,9 @@ class Player {
         }
 
         // State determination
-        if (this.dashing) {
+        if (this.attacking) {
+            this.state = 'attack';
+        } else if (this.dashing) {
             this.state = 'power';
         } else if (!this.onGround) {
             this.state = this.vy < 0 ? 'jump' : 'fall';
@@ -213,6 +245,11 @@ class Player {
         if (this.x < 0) { this.x = 0; this.vx = 0; }
     }
 
+    getAttackRect() {
+        const ax = this.facing === 1 ? this.x + this.w - 4 : this.x - 36;
+        return { x: ax, y: this.y + 6, w: 38, h: this.h - 14 };
+    }
+
     hit() {
         if (this.invincible || this.powered) return;
         this.hp--;
@@ -258,7 +295,9 @@ class Player {
         const dir = this.facing === 1 ? 'r' : 'l';
         let stateName;
 
-        if (this.powered) {
+        if (this.attacking) {
+            stateName = 'power'; // reuse power sprite for attack pose
+        } else if (this.powered) {
             stateName = 'power';
         } else if (this.state === 'jump') {
             stateName = 'jump';
@@ -299,5 +338,22 @@ class Player {
         }
 
         ctx.drawImage(sprite, drawX - 3, drawY);
+
+        // Attack swing visual
+        if (this.attacking) {
+            const progress = 1 - this.attackTimer / this.attackDuration;
+            const swingX = this.facing === 1 ? drawX + this.w - 2 : drawX - 28;
+            const swingY = drawY + 8;
+            ctx.save();
+            ctx.globalAlpha = 0.7 * (1 - progress);
+            // Flash color
+            ctx.fillStyle = '#f0d000';
+            ctx.fillRect(swingX, swingY, 28, 18);
+            // Inner fist
+            ctx.globalAlpha = 0.9 * (1 - progress);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(swingX + 4, swingY + 4, 20, 10);
+            ctx.restore();
+        }
     }
 }

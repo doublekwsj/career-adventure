@@ -167,12 +167,32 @@ class World {
 
         // --- Enemies ---
         const enemyType = zone.enemy;
-        const enemyCount = zoneIdx < 2 ? 3 : (zoneIdx < 5 ? 5 : 4);
+        const enemyCount = 5 + zoneIdx; // 5-11 ground enemies per zone
         for (let i = 0; i < enemyCount; i++) {
-            const eCol = startCol + 15 + i * Math.floor(usableWidth / enemyCount);
+            const eCol = startCol + 10 + i * Math.floor(usableWidth / enemyCount);
             const eX = eCol * TILE_SIZE;
             const eY = (groundRow - 1) * TILE_SIZE;
             this.enemies.push(new Enemy(eX, eY, enemyType));
+        }
+
+        // --- Flying enemies (from zone 1 onwards) ---
+        if (zoneIdx >= 1) {
+            const flyCount = 1 + Math.floor(zoneIdx / 2); // 1,1,2,2,3,3 flying enemies
+            for (let i = 0; i < flyCount; i++) {
+                const eCol = startCol + 18 + i * Math.floor(usableWidth / flyCount);
+                const eX = eCol * TILE_SIZE;
+                const eY = (groundRow - 5) * TILE_SIZE; // mid-air height
+                this.enemies.push(new Enemy(eX, eY, 'flying'));
+            }
+        }
+
+        // --- Extra elevated enemies on platforms ---
+        const platDefs = this._getPlatformPositions(zoneIdx);
+        if (platDefs.length > 0) {
+            const platEnemy = platDefs[Math.floor(platDefs.length / 2)];
+            const peX = (startCol + platEnemy.col + 1) * TILE_SIZE;
+            const peY = (platEnemy.row - 1) * TILE_SIZE;
+            this.enemies.push(new Enemy(peX, peY, enemyType));
         }
 
         // --- Boss ---
@@ -313,16 +333,65 @@ class World {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, camera.width, camera.height);
 
-        // Stars for space zone
+        // Zone-specific atmosphere
+        const t = Date.now();
         if (zone.theme === 'space') {
-            ctx.fillStyle = '#fff';
+            // Stars + nebula
             for (let i = 0; i < 80; i++) {
                 const sx = (Math.sin(i * 127.1 + camera.x * 0.001) * 0.5 + 0.5) * camera.width;
                 const sy = (Math.cos(i * 311.7) * 0.5 + 0.5) * camera.height * 0.7;
-                const ss = 1 + Math.sin(Date.now() * 0.002 + i) * 0.8;
-                ctx.globalAlpha = 0.5 + Math.sin(Date.now() * 0.003 + i * 2) * 0.5;
+                const ss = 1 + Math.sin(t * 0.002 + i) * 0.8;
+                ctx.globalAlpha = 0.5 + Math.sin(t * 0.003 + i * 2) * 0.5;
+                ctx.fillStyle = i % 3 === 0 ? '#4fc3f7' : i % 3 === 1 ? '#a78bfa' : '#fff';
                 ctx.fillRect(sx, sy, ss, ss);
             }
+            // Nebula glow
+            ctx.globalAlpha = 0.06 + Math.sin(t * 0.001) * 0.03;
+            ctx.fillStyle = '#6a11cb';
+            ctx.fillRect(0, 0, camera.width, camera.height * 0.5);
+            ctx.globalAlpha = 1;
+        } else if (zone.theme === 'city') {
+            // Rain effect
+            ctx.strokeStyle = 'rgba(180,210,255,0.25)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 40; i++) {
+                const rx = ((i * 173 + t * 0.3) % (camera.width + 60)) - 30;
+                const ry = (i * 97 + t * 0.4) % camera.height;
+                ctx.beginPath();
+                ctx.moveTo(rx, ry);
+                ctx.lineTo(rx - 3, ry + 10);
+                ctx.stroke();
+            }
+        } else if (zone.theme === 'factory') {
+            // Rising smoke/embers
+            for (let i = 0; i < 20; i++) {
+                const ex = (i * 211 + t * 0.05) % camera.width;
+                const ey = camera.height - ((i * 137 + t * 0.08) % camera.height);
+                ctx.globalAlpha = 0.12 + Math.sin(t * 0.004 + i) * 0.06;
+                ctx.fillStyle = i % 2 === 0 ? '#ff6b35' : '#888';
+                ctx.fillRect(ex, ey, 3, 3);
+            }
+            ctx.globalAlpha = 1;
+        } else if (zone.theme === 'university') {
+            // Falling leaves
+            for (let i = 0; i < 15; i++) {
+                const lx = (i * 241 + t * 0.06) % camera.width;
+                const ly = (i * 113 + t * 0.09) % camera.height;
+                ctx.globalAlpha = 0.35;
+                ctx.fillStyle = i % 3 === 0 ? '#f0d000' : i % 3 === 1 ? '#ff6b35' : '#8bc34a';
+                ctx.save();
+                ctx.translate(lx, ly);
+                ctx.rotate(t * 0.002 + i);
+                ctx.fillRect(-3, -3, 6, 6);
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+        } else if (zone.theme === 'future') {
+            // Neon scan line
+            const scanY = (t * 0.08) % camera.height;
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = '#4fc3f7';
+            ctx.fillRect(0, scanY, camera.width, 2);
             ctx.globalAlpha = 1;
         }
 
@@ -344,6 +413,17 @@ class World {
             const modX = ((drawX % (camera.width + 200)) + camera.width + 200) % (camera.width + 200) - 100;
             ctx.drawImage(Sprites.get(cloud.type), modX, cloud.y);
         }
+
+        // Mid-distance silhouette layer (closer parallax = more depth)
+        ctx.globalAlpha = 0.18;
+        ctx.fillStyle = zone.bgColor2;
+        for (let i = 0; i < 12; i++) {
+            const bx = (i * 500 - camera.x * 0.65 + 300) % (camera.width + 120) - 60;
+            const bh = 40 + (i * 37 % 50);
+            const bw = 30 + (i * 29 % 40);
+            ctx.fillRect(bx, camera.height - bh - 40, bw, bh);
+        }
+        ctx.globalAlpha = 1;
     }
 
     drawTiles(ctx, camera) {

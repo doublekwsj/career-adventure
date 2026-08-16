@@ -187,6 +187,29 @@ const Game = {
             }
         }
 
+        // Attack hits enemies/bosses
+        if (this.player.attacking) {
+            const atk = this.player.getAttackRect();
+            for (const enemy of this.world.enemies) {
+                if (!enemy.alive) continue;
+                if (this.player.attackHitSet.has(enemy)) continue;
+                if (Physics.rectCollision(atk, enemy)) {
+                    this.player.attackHitSet.add(enemy);
+                    enemy.stomp();
+                    this.player.addScore(120);
+                }
+            }
+            for (const boss of this.world.bosses) {
+                if (!boss.alive) continue;
+                if (this.player.attackHitSet.has(boss)) continue;
+                if (Physics.rectCollision(atk, boss)) {
+                    this.player.attackHitSet.add(boss);
+                    const defeated = boss.hit();
+                    this.player.addScore(defeated ? 800 : 250);
+                }
+            }
+        }
+
         // Enemy collisions
         for (const enemy of this.world.enemies) {
             if (!enemy.alive) continue;
@@ -459,11 +482,11 @@ const Game = {
         if (Input.isMobile) {
             ctx.fillStyle = '#666';
             ctx.font = '6px "Press Start 2P", monospace';
-            ctx.fillText('DOUBLE JUMP + DASH available!', w / 2, h * 0.89);
+            ctx.fillText('JUMP/DASH/ATK buttons | Double Jump!', w / 2, h * 0.89);
         } else {
             ctx.fillStyle = '#666';
             ctx.font = '7px "Press Start 2P", monospace';
-            ctx.fillText('Arrows/WASD: Move | Space: Jump | X/Shift: Dash', w / 2, h * 0.89);
+            ctx.fillText('Arrows: Move | Space: Jump | X/Shift: Dash | Z: Attack', w / 2, h * 0.89);
         }
 
         // Start prompt
