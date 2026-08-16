@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Career Flight - Kim Wonkyun</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Press Start 2P', monospace;
+        }
+        #game-canvas {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border: 2px solid #333;
+            touch-action: none;
+        }
+        #bomb-btn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid rgba(240,208,0,0.8);
+            background: rgba(240,208,0,0.2);
+            color: #f0d000;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            cursor: pointer;
+            z-index: 100;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #bomb-btn:active { background: rgba(240,208,0,0.5); transform: scale(0.9); }
+        #link-back {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            color: #666;
+            font-size: 8px;
+            text-decoration: none;
+            z-index: 200;
+            font-family: 'Press Start 2P', monospace;
+        }
+        #link-back:hover { color: #f0d000; }
+        @media (max-width: 768px) {
+            #bomb-btn { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <a id="link-back" href="../">← PLATFORMER</a>
+    <canvas id="game-canvas"></canvas>
+    <button id="bomb-btn">BOMB</button>
+    <script src="js/flight-data.js"></script>
+    <script src="js/flight-game.js"></script>
+    <script src="js/flight-main.js"></script>
+</body>
+</html>
