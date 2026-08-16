@@ -13,8 +13,10 @@ const Game = {
     popupQueue: [],
     popupVisible: false,
     popupTimer: 0,
-    tutorialTimer: 420, // show tutorial hints for first 7 seconds
+    tutorialTimer: 420,
     tutorialDone: false,
+    flashTimer: 0,
+    flashColor: '#fff',
 
     init() {
         this.canvas = document.getElementById('game-canvas');
@@ -202,6 +204,7 @@ const Game = {
                     this.player.attackHitSet.add(enemy);
                     enemy.stomp();
                     this.player.addScore(120);
+                    this._onKill();
                 }
             }
             for (const boss of this.world.bosses) {
@@ -211,6 +214,9 @@ const Game = {
                     this.player.attackHitSet.add(boss);
                     const defeated = boss.hit();
                     this.player.addScore(defeated ? 800 : 250);
+                    this.flashTimer = 10;
+                    this.flashColor = defeated ? '#f0d000' : '#ff4444';
+                    if (defeated) Particles.bigExplosion(boss.x + boss.w / 2, boss.y + boss.h / 2);
                 }
             }
         }
@@ -224,12 +230,14 @@ const Game = {
             if (this.player.dashing) {
                 enemy.stomp();
                 this.player.addScore(150);
+                this._onKill();
             }
             // Stomp from above
             else if (this.player.vy > 0 && this.player.y + this.player.h - 10 < enemy.y + enemy.h / 2) {
                 enemy.stomp();
                 this.player.vy = -8;
                 this.player.addScore(100);
+                this._onKill();
             } else if (!this.player.invincible) {
                 if (this.player.powered) {
                     enemy.stomp();
@@ -375,6 +383,16 @@ const Game = {
 
         // Particles
         Particles.draw(ctx, this.camera);
+
+        // Screen flash
+        if (this.flashTimer > 0) {
+            this.flashTimer--;
+            ctx.save();
+            ctx.globalAlpha = (this.flashTimer / 10) * 0.35;
+            ctx.fillStyle = this.flashColor;
+            ctx.fillRect(-Utils.shake.x, -Utils.shake.y, this.canvas.width, this.canvas.height);
+            ctx.restore();
+        }
 
         ctx.restore();
 
@@ -676,6 +694,19 @@ const Game = {
         popup.classList.remove('show');
         setTimeout(() => popup.classList.add('hidden'), 300);
         this.popupVisible = false;
+    },
+
+    _onKill() {
+        this.flashTimer = 6;
+        this.flashColor = '#ff6b35';
+        const combo = this.player.combo;
+        if (combo >= 3) {
+            Particles.comboText(this.player.x + this.player.w / 2, this.player.y - 30, combo);
+        }
+        if (combo >= 5) {
+            this.flashTimer = 10;
+            this.flashColor = '#f0d000';
+        }
     },
 
     showGameOver() {

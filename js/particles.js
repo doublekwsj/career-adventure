@@ -127,21 +127,33 @@ const Particles = {
         });
     },
 
-    enemyDefeat(x, y) {
-        this.emit(x, y, {
-            count: 12,
-            colors: ['#ff6b6b', '#ff8a65', '#fff'],
-            spread: 6,
-            vy: -4,
-            life: 30,
-            size: 4,
-            type: 'circle'
-        });
+    enemyDefeat(x, y, colors) {
+        const c = colors || ['#ff6b35', '#f0d000', '#ff4444', '#fff', '#4fc3f7'];
+        // Big star burst
+        this.emit(x, y, { count: 18, colors: c, spread: 9, vy: -5, life: 40, size: 6, type: 'star', gravity: 0.18 });
+        // Shockwave ring
+        this.emit(x, y, { count: 10, colors: ['#fff', '#ffeb3b'], spread: 12, vy: -1, life: 18, size: 9, type: 'circle', gravity: 0 });
+        // Micro debris
+        this.emit(x, y, { count: 8, colors: c, spread: 5, vx: 0, vy: -7, life: 25, size: 3, type: 'square', gravity: 0.35 });
+    },
+
+    bigExplosion(x, y) {
+        this.emit(x, y, { count: 30, colors: ['#ff6b35', '#f0d000', '#ff4444', '#fff'], spread: 14, vy: -6, life: 50, size: 7, type: 'star', gravity: 0.15 });
+        this.emit(x, y, { count: 15, colors: ['#fff', '#ffeb3b', '#ff6b35'], spread: 18, vy: 0, life: 25, size: 12, type: 'circle', gravity: 0 });
+        this.emit(x, y, { count: 12, colors: ['#f44336', '#ff6b6b'], spread: 8, vy: -9, life: 35, size: 4, type: 'square', gravity: 0.4 });
     },
 
     scorePopup(x, y, score) {
-        const p = new Particle(x, y, 0, -2, '#fff', 40, 10, 'text');
+        const color = score >= 500 ? '#f0d000' : score >= 200 ? '#4fc3f7' : '#fff';
+        const p = new Particle(x, y, 0, -2.5, color, 50, 12, 'text');
         p.text = `+${score}`;
+        p.gravity = 0;
+        this.particles.push(p);
+    },
+
+    comboText(x, y, combo) {
+        const p = new Particle(x, y - 20, 0, -1.5, '#f0d000', 60, 14, 'text');
+        p.text = `COMBO x${combo}!`;
         p.gravity = 0;
         this.particles.push(p);
     },

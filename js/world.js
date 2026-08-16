@@ -165,41 +165,53 @@ class World {
             }
         });
 
-        // --- Enemies (difficulty ramp: zone 0 is forgiving, later zones are dense) ---
+        // --- Enemies ---
         const enemyType = zone.enemy;
-        const enemyCount = [3, 4, 5, 6, 7, 8, 9][zoneIdx] || 5;
-        const firstEnemyCol = zoneIdx === 0 ? 25 : 12; // zone 0: give player room to learn
+        const groundCounts = [5, 8, 10, 12, 13, 14, 15];
+        const enemyCount = groundCounts[zoneIdx] || 10;
+        const firstEnemyCol = zoneIdx === 0 ? 22 : 10;
         for (let i = 0; i < enemyCount; i++) {
             const eCol = startCol + firstEnemyCol + i * Math.floor((usableWidth - firstEnemyCol) / enemyCount);
             const eX = eCol * TILE_SIZE;
             const eY = (groundRow - 1) * TILE_SIZE;
             const enemy = new Enemy(eX, eY, enemyType);
-            // Slower patrol speed in early zones
             if (zoneIdx === 0) enemy.vx = -0.7;
             else if (zoneIdx === 1) enemy.vx = -1.0;
             this.enemies.push(enemy);
         }
 
-        // --- Flying enemies (from zone 2 onwards, to give player time to learn basics) ---
-        if (zoneIdx >= 2) {
-            const flyCount = 1 + Math.floor((zoneIdx - 2) / 2); // 1,1,2,2,3 flying enemies
+        // --- Flying enemies (from zone 1) ---
+        if (zoneIdx >= 1) {
+            const flyCount = [0, 2, 3, 4, 5, 5, 6][zoneIdx] || 2;
             for (let i = 0; i < flyCount; i++) {
-                const eCol = startCol + 20 + i * Math.floor(usableWidth / flyCount);
+                const eCol = startCol + 15 + i * Math.floor(usableWidth / flyCount);
                 const eX = eCol * TILE_SIZE;
-                const eY = (groundRow - 5) * TILE_SIZE;
+                const eY = (groundRow - 5 - Math.floor(i % 2) * 2) * TILE_SIZE;
                 this.enemies.push(new Enemy(eX, eY, 'flying'));
             }
         }
 
-        // --- Extra elevated enemies on platforms (from zone 1) ---
+        // --- Jumper enemies (from zone 2) ---
+        if (zoneIdx >= 2) {
+            const jumpCount = [0, 0, 2, 3, 4, 4, 5][zoneIdx] || 2;
+            for (let i = 0; i < jumpCount; i++) {
+                const eCol = startCol + 18 + i * Math.floor(usableWidth / jumpCount);
+                const eX = eCol * TILE_SIZE;
+                const eY = (groundRow - 1) * TILE_SIZE;
+                this.enemies.push(new Enemy(eX, eY, 'jumper'));
+            }
+        }
+
+        // --- Platform enemies (all zones from 1) ---
         if (zoneIdx >= 1) {
             const platDefs = this._getPlatformPositions(zoneIdx);
-            if (platDefs.length > 0) {
-                const platEnemy = platDefs[Math.floor(platDefs.length / 2)];
-                const peX = (startCol + platEnemy.col + 1) * TILE_SIZE;
-                const peY = (platEnemy.row - 1) * TILE_SIZE;
-                this.enemies.push(new Enemy(peX, peY, enemyType));
-            }
+            platDefs.forEach((p, i) => {
+                if (i % 2 === 0) {
+                    const peX = (startCol + p.col + 1) * TILE_SIZE;
+                    const peY = (p.row - 1) * TILE_SIZE;
+                    this.enemies.push(new Enemy(peX, peY, i % 4 === 0 ? 'jumper' : enemyType));
+                }
+            });
         }
 
         // --- Boss ---
@@ -421,14 +433,29 @@ class World {
             ctx.drawImage(Sprites.get(cloud.type), modX, cloud.y);
         }
 
-        // Mid-distance silhouette layer (closer parallax = more depth)
-        ctx.globalAlpha = 0.18;
+        // Mid-distance silhouette layer
+        ctx.globalAlpha = 0.22;
         ctx.fillStyle = zone.bgColor2;
+        for (let i = 0; i < 14; i++) {
+            const bx = ((i * 480 - camera.x * 0.62) % (camera.width + 140) + camera.width + 140) % (camera.width + 140) - 70;
+            const bh = 50 + (i * 37 % 60);
+            const bw = 28 + (i * 29 % 45);
+            ctx.fillRect(bx, camera.height - bh - 35, bw, bh);
+        }
+        ctx.globalAlpha = 1;
+
+        // Ambient floating particles (zone-themed)
+        const pt = Date.now();
+        const ambColors = zone.theme === 'space' ? ['#4fc3f7','#a78bfa','#fff'] :
+                          zone.theme === 'future' ? ['#00e5ff','#f0d000','#7c4dff'] :
+                          zone.theme === 'city'   ? ['#90caf9','#fff'] :
+                          ['#f0d000','#fff','#8bc34a'];
         for (let i = 0; i < 12; i++) {
-            const bx = (i * 500 - camera.x * 0.65 + 300) % (camera.width + 120) - 60;
-            const bh = 40 + (i * 37 % 50);
-            const bw = 30 + (i * 29 % 40);
-            ctx.fillRect(bx, camera.height - bh - 40, bw, bh);
+            const px = ((i * 320 - camera.x * 0.25 + pt * 0.01 * (i % 3 + 1)) % (camera.width + 60) + camera.width + 60) % (camera.width + 60) - 30;
+            const py = camera.height * 0.1 + (Math.sin(pt * 0.001 + i * 1.3) * 0.4 + 0.5) * camera.height * 0.7;
+            ctx.globalAlpha = 0.12 + Math.sin(pt * 0.003 + i) * 0.06;
+            ctx.fillStyle = ambColors[i % ambColors.length];
+            ctx.fillRect(px, py, 3 + i % 3, 3 + i % 3);
         }
         ctx.globalAlpha = 1;
     }

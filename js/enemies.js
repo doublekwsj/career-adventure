@@ -34,6 +34,12 @@ class Enemy {
             this.flyBaseY = y;
             this.flyPhase = Math.random() * Math.PI * 2;
             this.patrolRange = 140;
+        } else if (type === 'jumper') {
+            this.w = 26;
+            this.h = 30;
+            this.vx = (Math.random() > 0.5 ? 1 : -1) * 1.3;
+            this.jumpTimer = 50 + Math.floor(Math.random() * 60);
+            this.patrolRange = 130;
         }
     }
 
@@ -85,6 +91,20 @@ class Enemy {
             }
         }
 
+        // Jumper: periodic jump
+        if (this.type === 'jumper' && this.onGround) {
+            this.jumpTimer--;
+            if (this.jumpTimer <= 0) {
+                this.vy = -11;
+                this.onGround = false;
+                this.jumpTimer = 55 + Math.floor(Math.random() * 50);
+                Particles.emit(this.x + this.w / 2, this.y + this.h, {
+                    count: 5, colors: ['#ff6b35', '#f0d000'], spread: 3,
+                    vy: 1, life: 12, size: 3, type: 'star', gravity: 0
+                });
+            }
+        }
+
         // Edge detection - reverse at patrol range
         if (Math.abs(this.x - this.startX) > this.patrolRange) {
             this.vx = -this.vx;
@@ -112,8 +132,21 @@ class Enemy {
     stomp() {
         this.alive = false;
         this.squishTimer = 30;
-        Particles.enemyDefeat(this.x + this.w / 2, this.y + this.h / 2);
+        const cx = this.x + this.w / 2;
+        const cy = this.y + this.h / 2;
+        // Zone-themed kill colors
+        const colors = {
+            bug:      ['#8bc34a', '#f0d000', '#fff'],
+            glitch:   ['#4fc3f7', '#e91e63', '#fff'],
+            spam:     ['#ff9800', '#ff6b35', '#fff'],
+            asteroid: ['#90a4ae', '#ff6b35', '#cfd8dc'],
+            deadline: ['#f44336', '#ff1744', '#fff'],
+            flying:   ['#cc3333', '#ff6b6b', '#f0d000'],
+            jumper:   ['#ff6b35', '#f0d000', '#fff'],
+        };
+        Particles.enemyDefeat(cx, cy, colors[this.type] || null);
         Audio.play('stomp');
+        Utils.startShake(4, 8);
     }
 
     draw(ctx, camera) {
@@ -130,6 +163,8 @@ class Enemy {
             spriteName = 'enemy_asteroid';
         } else if (this.type === 'flying') {
             spriteName = `enemy_flying_${this.animFrame + 1}`;
+        } else if (this.type === 'jumper') {
+            spriteName = `enemy_jumper_${this.animFrame + 1}`;
         } else {
             spriteName = `enemy_${this.type}_${this.animFrame + 1}`;
         }

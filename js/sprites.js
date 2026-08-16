@@ -66,6 +66,8 @@ const Sprites = {
         this.cache.enemy_deadline_2 = this._drawEnemyDeadline(true);
         this.cache.enemy_flying_1 = this._drawEnemyFlying(false);
         this.cache.enemy_flying_2 = this._drawEnemyFlying(true);
+        this.cache.enemy_jumper_1 = this._drawEnemyJumper(false);
+        this.cache.enemy_jumper_2 = this._drawEnemyJumper(true);
         this.cache.enemy_squished = this._drawSquished();
 
         // Boss
@@ -727,6 +729,36 @@ const Sprites = {
         ctx.fillRect(2, 2, 26, 6);
         ctx.fillStyle = '#555';
         ctx.fillRect(4, 4, 22, 2);
+        return c;
+    },
+
+    _drawEnemyJumper(alt) {
+        const c = this._c(26, 30);
+        const ctx = c.getContext('2d');
+        const sq = alt ? 1 : 0; // squash/stretch on alternate frame
+        // Body (spring-loaded critter)
+        ctx.fillStyle = '#ff6b35';
+        ctx.fillRect(4, 8 - sq, 18, 14 + sq * 2);
+        // Eyes (alert)
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(6, 9 - sq, 5, 5);
+        ctx.fillRect(15, 9 - sq, 5, 5);
+        ctx.fillStyle = '#f00';
+        ctx.fillRect(7 + sq, 10 - sq, 3, 3);
+        ctx.fillRect(16 + sq, 10 - sq, 3, 3);
+        // Spiky top
+        ctx.fillStyle = '#ff4444';
+        ctx.fillRect(7, 4 - sq * 2, 4, 6 + sq * 2);
+        ctx.fillRect(15, 4 - sq * 2, 4, 6 + sq * 2);
+        ctx.fillRect(11, 2 - sq * 2, 4, 8 + sq * 2);
+        // Spring legs
+        ctx.fillStyle = '#ffcc80';
+        ctx.fillRect(5, 22 + sq, 6, 6 - sq);
+        ctx.fillRect(15, 22 + sq, 6, 6 - sq);
+        // Feet
+        ctx.fillStyle = '#e65100';
+        ctx.fillRect(4, 27 + sq, 8, 3);
+        ctx.fillRect(14, 27 + sq, 8, 3);
         return c;
     },
 
